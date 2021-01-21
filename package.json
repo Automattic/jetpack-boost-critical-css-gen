@@ -2,6 +2,9 @@
 	"name": "jetpack-boost-critical-css-gen",
 	"description": "Critical CSS Generator capable of running in-browser (iframes) or on server-side (NodeJS + Puppeteer). Built for use with Jetpack Boost.",
 	"version": "0.0.1",
+	"scripts": {
+		"lint": "eslint . && echo '✔ eslint ran successfully.'"
+	},
 	"dependencies": {
 		"clean-css": "^4.2.3",
 		"css-tree": "^1.0.0-alpha.39"
@@ -9,7 +12,5 @@
 	"devDependencies": {
 		"eslint": "^7.18.0"
 	},
-	"scripts": {
-		"lint": "eslint . && echo '✔ eslint ran successfully.'"
-	}
+	"exports": "./index.js"
 }
