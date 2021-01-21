@@ -265,7 +265,7 @@ class StyleAST {
 		csstree.walk(this.ast, {
 			visit: 'Declaration',
 			enter: (declaration, item, list) => {
-				const tooLong = false;
+				let tooLong = false;
 
 				csstree.walk(declaration, {
 					visit: 'Url',
@@ -275,6 +275,7 @@ class StyleAST {
 							base64Pattern.test(value) &&
 							value.length > maxBase64Length
 						) {
+							tooLong = true;
 						}
 					},
 				});
