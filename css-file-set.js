@@ -1,6 +1,7 @@
-const StyleAST = require('./style-ast');
+const StyleAST = require( './style-ast' );
 const fetch =
-	(typeof window !== 'undefined' && window.fetch) || require('node-fetch');
+	( typeof window !== 'undefined' && window.fetch ) ||
+	require( 'node-fetch' );
 
 // Maximum number of iterations when pruning unused variables.
 const maxVarPruneIterations = 10;
@@ -23,8 +24,10 @@ class CSSFileSet {
 	 * @param {string} page - URL of the page the CSS URLs were found on.
 	 * @param {string[]} cssUrls - The CSS file URLs.
 	 */
-	async addMultiple(page, cssUrls) {
-		return Promise.all(cssUrls.map((cssUrl) => this.add(page, cssUrl)));
+	async addMultiple( page, cssUrls ) {
+		return Promise.all(
+			cssUrls.map( ( cssUrl ) => this.add( page, cssUrl ) )
+		);
 	}
 
 	/**
@@ -33,29 +36,29 @@ class CSSFileSet {
 	 * @param {string} page - URL of the page the CSS URL was found on.
 	 * @param {string} cssUrl - The CSS file URL.
 	 */
-	async add(page, cssUrl) {
+	async add( page, cssUrl ) {
 		// Add by reference if we already know this file.
-		if (Object.prototype.hasOwnProperty.call(this.knownUrls, cssUrl)) {
-			if (this.knownUrls[cssUrl] instanceof Error) {
+		if ( Object.prototype.hasOwnProperty.call( this.knownUrls, cssUrl ) ) {
+			if ( this.knownUrls[ cssUrl ] instanceof Error ) {
 				// We already know this URL failed. Bail early.
 				return;
 			}
 
-			this.addExtraReference(page, cssUrl, this.knownUrls[cssUrl]);
+			this.addExtraReference( page, cssUrl, this.knownUrls[ cssUrl ] );
 			return;
 		}
 
 		// Try to load this URL.
 		try {
-			const response = await fetch(cssUrl);
-			if (!response.ok) {
-				throw new Error('Invalid response.');
+			const response = await fetch( cssUrl );
+			if ( ! response.ok ) {
+				throw new Error( 'Invalid response.' );
 			}
 
-			this.storeCss(page, cssUrl, await response.text());
-		} catch (err) {
-			const wrapped = `Error while attempting to load CSS at ${cssUrl}: ${err.message}`;
-			this.storeError(cssUrl, new Error(wrapped));
+			this.storeCss( page, cssUrl, await response.text() );
+		} catch ( err ) {
+			const wrapped = `Error while attempting to load CSS at ${ cssUrl }: ${ err.message }`;
+			this.storeError( cssUrl, new Error( wrapped ) );
 		}
 	}
 
@@ -68,16 +71,16 @@ class CSSFileSet {
 	collateSelectorPages() {
 		const selectors = {};
 
-		for (const file of this.cssFiles) {
-			file.ast.forEachSelector((selector) => {
-				if (!selectors[selector]) {
-					selectors[selector] = new Set();
+		for ( const file of this.cssFiles ) {
+			file.ast.forEachSelector( ( selector ) => {
+				if ( ! selectors[ selector ] ) {
+					selectors[ selector ] = new Set();
 				}
 
-				file.pages.forEach((pageUrl) =>
-					selectors[selector].add(pageUrl)
+				file.pages.forEach( ( pageUrl ) =>
+					selectors[ selector ].add( pageUrl )
 				);
-			});
+			} );
 		}
 
 		return selectors;
@@ -89,21 +92,21 @@ class CSSFileSet {
 	 *
 	 * @param {Set<string>} usefulSelectors - Set of selectors to keep.
 	 */
-	prunedAsts(usefulSelectors) {
+	prunedAsts( usefulSelectors ) {
 		// Perform basic pruning.
-		let asts = this.cssFiles.map((file) => {
-			return file.ast.pruned(usefulSelectors);
-		});
+		let asts = this.cssFiles.map( ( file ) => {
+			return file.ast.pruned( usefulSelectors );
+		} );
 
 		// Repeatedly prune unused variables (up to maxVarPruneIterations), to catch vars which are
 		// only used to define other vars which aren't used.
 		let prevUsedVariables;
-		for (let i = 0; i < maxVarPruneIterations; i++) {
+		for ( let i = 0; i < maxVarPruneIterations; i++ ) {
 			// Gather the set of used variables.
-			const usedVariables = asts.reduce((set, ast) => {
-				ast.getUsedVariables().forEach((v) => set.add(v));
+			const usedVariables = asts.reduce( ( set, ast ) => {
+				ast.getUsedVariables().forEach( ( v ) => set.add( v ) );
 				return set;
-			}, new Set());
+			}, new Set() );
 
 			// If the number of used vars hasn't changed since last iteration, stop early.
 			if (
@@ -114,13 +117,13 @@ class CSSFileSet {
 			}
 
 			// Prune unused variables, keep a sum of pruned variables.
-			const prunedCount = asts.reduce((sum, ast) => {
-				sum += ast.pruneUnusedVariables(usedVariables);
+			const prunedCount = asts.reduce( ( sum, ast ) => {
+				sum += ast.pruneUnusedVariables( usedVariables );
 				return sum;
-			}, 0);
+			}, 0 );
 
 			// If no variables were pruned this iteration, stop early.
-			if (prunedCount === 0) {
+			if ( prunedCount === 0 ) {
 				break;
 			}
 
@@ -128,16 +131,16 @@ class CSSFileSet {
 		}
 
 		// Find all fonts used across all ASTs, and prune all that are not referenced.
-		const fontWhitelist = asts.reduce((set, ast) => {
-			ast.getUsedFontFamilies().forEach((font) => set.add(font));
+		const fontWhitelist = asts.reduce( ( set, ast ) => {
+			ast.getUsedFontFamilies().forEach( ( font ) => set.add( font ) );
 			return set;
-		}, new Set());
+		}, new Set() );
 
 		// Remove any fonts that aren't used above the fold.
-		asts.forEach((ast) => ast.pruneNonCriticalFonts(fontWhitelist));
+		asts.forEach( ( ast ) => ast.pruneNonCriticalFonts( fontWhitelist ) );
 
 		// Throw away any ASTs without rules.
-		asts = asts.filter((ast) => ast.ruleCount() > 0);
+		asts = asts.filter( ( ast ) => ast.ruleCount() > 0 );
 
 		return asts;
 	}
@@ -150,20 +153,20 @@ class CSSFileSet {
 	 * @param {string} cssUrl - URL of the CSS file.
 	 * @param {string} css - Content of the CSS File.
 	 */
-	storeCss(page, cssUrl, css) {
+	storeCss( page, cssUrl, css ) {
 		// De-duplicate css contents in case cache busters in URLs or WAFs, etc confound URL de-duplication.
-		const matchingFile = this.cssFiles.find((file) => file.css === css);
-		if (matchingFile) {
-			this.addExtraReference(page, cssUrl, matchingFile);
+		const matchingFile = this.cssFiles.find( ( file ) => file.css === css );
+		if ( matchingFile ) {
+			this.addExtraReference( page, cssUrl, matchingFile );
 			return;
 		}
 
 		// Parse the CSS into an AST.
-		const ast = StyleAST.parse(css);
+		const ast = StyleAST.parse( css );
 
-		const file = { css, ast, pages: [page], urls: [cssUrl] };
-		this.knownUrls[cssUrl] = file;
-		this.cssFiles.push(file);
+		const file = { css, ast, pages: [ page ], urls: [ cssUrl ] };
+		this.knownUrls[ cssUrl ] = file;
+		this.cssFiles.push( file );
 	}
 
 	/**
@@ -174,12 +177,12 @@ class CSSFileSet {
 	 * @param {string} cssUrl - URL of the CSS File.
 	 * @param {Object} matchingFile - Internal CSS File object.
 	 */
-	addExtraReference(page, cssUrl, matchingFile) {
-		this.knownUrls[cssUrl] = matchingFile;
-		matchingFile.pages.push(page);
+	addExtraReference( page, cssUrl, matchingFile ) {
+		this.knownUrls[ cssUrl ] = matchingFile;
+		matchingFile.pages.push( page );
 
-		if (!matchingFile.urls.includes(cssUrl)) {
-			matchingFile.urls.push(cssUrl);
+		if ( ! matchingFile.urls.includes( cssUrl ) ) {
+			matchingFile.urls.push( cssUrl );
 		}
 	}
 
@@ -189,9 +192,9 @@ class CSSFileSet {
 	 * @param {string} url - CSS URL that failed to fetch or parse.
 	 * @param {Error} err - Error object describing the problem.
 	 */
-	storeError(url, err) {
-		this.knownUrls[url] = err;
-		this.errors.push(err);
+	storeError( url, err ) {
+		this.knownUrls[ url ] = err;
+		this.errors.push( err );
 	}
 
 	/**
@@ -203,10 +206,10 @@ class CSSFileSet {
 		return this.errors;
 	}
 
-	static async collate(browserInterface, urls) {
+	static async collate( browserInterface, urls ) {
 		const cssFiles = new CSSFileSet();
 
-		for (const url of urls) {
+		for ( const url of urls ) {
 			// Code for fetching CSS dependencies by asking PHP. Relies on cooperation with the plugin.
 			/* const cssUrls = await queryPage(url, null, () => {
 				// TODO: Dependence on Jetpack_Boost will have be removed if this is to become a standalone library.
@@ -223,11 +226,13 @@ class CSSFileSet {
 			}); */
 
 			// Alternate code for fetching CSS dependencies directly from the DOM.
-			const cssUrls = await browserInterface.getCssUrls(url);
+			const cssUrls = await browserInterface.getCssUrls( url );
 
 			await cssFiles.addMultiple(
 				url,
-				cssUrls.map((relative) => new URL(relative, url).toString())
+				cssUrls.map( ( relative ) =>
+					new URL( relative, url ).toString()
+				)
 			);
 		}
 

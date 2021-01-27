@@ -17,11 +17,11 @@ let removePseudoElementRegex;
  * @return {RegExp} A RegExp to use when removing unwanted pseudo elements.
  */
 function getRemovePseudoElementRegex() {
-	if (removePseudoElementRegex) {
+	if ( removePseudoElementRegex ) {
 		return removePseudoElementRegex;
 	}
 
-	const allIgnored = ignoredPseudoElements.join('|');
+	const allIgnored = ignoredPseudoElements.join( '|' );
 	removePseudoElementRegex = new RegExp(
 		'::?(-(moz|ms|webkit)-)?(' + allIgnored + ')'
 	);
@@ -36,8 +36,8 @@ function getRemovePseudoElementRegex() {
  *
  * @return {string} selector with ignored pseudo elements removed.
  */
-function removeIgnoredPseudoElements(selector) {
-	return selector.replace(getRemovePseudoElementRegex(), '').trim();
+function removeIgnoredPseudoElements( selector ) {
+	return selector.replace( getRemovePseudoElementRegex(), '' ).trim();
 }
 
 module.exports = {

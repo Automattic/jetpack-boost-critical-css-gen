@@ -1,18 +1,29 @@
-const BrowserInterface = require('./browser-interface');
-const { ConfigurationError, CrossDomainError, HttpError, GenericUrlError, LoadTimeoutError, UrlVerifyError } = require('./errors');
+const BrowserInterface = require( './browser-interface' );
+const {
+	ConfigurationError,
+	CrossDomainError,
+	HttpError,
+	GenericUrlError,
+	LoadTimeoutError,
+	UrlVerifyError,
+} = require( './errors' );
 
 const defaultLoadTimeout = 60 * 1000;
 const defaultResizeTimeout = 1 * 1000;
 
 class BrowserInterfaceIframe extends BrowserInterface {
-
-	constructor( { requestGetParameters, loadTimeout, resizeTimeout, verifyPage } ) {
+	constructor( {
+		requestGetParameters,
+		loadTimeout,
+		resizeTimeout,
+		verifyPage,
+	} ) {
 		super();
 
 		this.requestGetParameters = requestGetParameters || {};
 		this.loadTimeout = loadTimeout || defaultLoadTimeout;
 		this.resizeTimeout = resizeTimeout || defaultResizeTimeout;
-		this.verifyPage = verifyPage
+		this.verifyPage = verifyPage;
 
 		if ( ! verifyPage ) {
 			throw new ConfigurationError();
@@ -23,14 +34,23 @@ class BrowserInterfaceIframe extends BrowserInterface {
 
 		// Create a wrapper div to keep the iframe invisible.
 		this.wrapperDiv = document.createElement( 'div' );
-		this.wrapperDiv.setAttribute( 'style', 'position:fixed; z-index: -1000; opacity: 0; top: 50px;' );
+		this.wrapperDiv.setAttribute(
+			'style',
+			'position:fixed; z-index: -1000; opacity: 0; top: 50px;'
+		);
 		document.body.append( this.wrapperDiv );
 
 		// Create iframe itself.
 		this.iframe = document.createElement( 'iframe' );
-		this.iframe.setAttribute( 'style', 'max-width: none; max-height: none; border: 0px;' );
+		this.iframe.setAttribute(
+			'style',
+			'max-width: none; max-height: none; border: 0px;'
+		);
 		this.iframe.setAttribute( 'aria-hidden', 'true' );
-		this.iframe.setAttribute( 'sandbox', 'allow-same-origin allow-scripts' );
+		this.iframe.setAttribute(
+			'sandbox',
+			'allow-same-origin allow-scripts'
+		);
 		this.wrapperDiv.append( this.iframe );
 	}
 
@@ -39,7 +59,7 @@ class BrowserInterfaceIframe extends BrowserInterface {
 		this.wrapperDiv.remove();
 	}
 
-	async runInPage(pageUrl, viewport, method, ...args) {
+	async runInPage( pageUrl, viewport, method, ...args ) {
 		await this.loadPage( pageUrl );
 
 		if ( viewport ) {
@@ -52,7 +72,10 @@ class BrowserInterfaceIframe extends BrowserInterface {
 	addGetParameters( rawUrl ) {
 		const urlObject = new URL( rawUrl );
 		for ( const key of Object.keys( this.requestGetParameters ) ) {
-			urlObject.searchParams.append( key, this.requestGetParameters[ key ] );
+			urlObject.searchParams.append(
+				key,
+				this.requestGetParameters[ key ]
+			);
 		}
 
 		return urlObject.toString();
@@ -66,7 +89,7 @@ class BrowserInterfaceIframe extends BrowserInterface {
 			}
 
 			return new HttpError( url, response.status );
-		} catch( err ) {
+		} catch ( err ) {
 			return new GenericUrlError( url, err.message );
 		}
 	}
@@ -96,9 +119,18 @@ class BrowserInterfaceIframe extends BrowserInterface {
 						throw new CrossDomainError( fullUrl );
 					}
 
-					if ( ! this.verifyPage( rawUrl, this.iframe.contentWindow, this.iframe.contentDocument ) ) {
+					if (
+						! this.verifyPage(
+							rawUrl,
+							this.iframe.contentWindow,
+							this.iframe.contentDocument
+						)
+					) {
 						// Diagnose and throw an appropriate error.
-						throw this.diagnoseUrlError( fullUrl ) || new UrlVerifyError( fullUrl );
+						throw (
+							this.diagnoseUrlError( fullUrl ) ||
+							new UrlVerifyError( fullUrl )
+						);
 					}
 
 					resolve();
@@ -112,7 +144,10 @@ class BrowserInterfaceIframe extends BrowserInterface {
 	}
 
 	async resize( { width, height } ) {
-		if ( this.currentSize.width === width && this.currentSize.height === height ) {
+		if (
+			this.currentSize.width === width &&
+			this.currentSize.height === height
+		) {
 			return;
 		}
 
@@ -131,7 +166,6 @@ class BrowserInterfaceIframe extends BrowserInterface {
 			const timeoutId = setTimeout( resolve, this.resizeTimeout );
 		} );
 	}
-
 }
 
 module.exports = BrowserInterfaceIframe;

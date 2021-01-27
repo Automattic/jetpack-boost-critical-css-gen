@@ -1,15 +1,14 @@
 class BrowserInterface {
 	// eslint-disable-next-line no-unused-vars
-	async runInPage(pageUrl, viewport, method, ...args) {
+	async runInPage( pageUrl, viewport, method, ...args ) {
 		throw new Error(
 			'Undefined interface method: BrowserInterface.runInPage()'
 		);
 	}
 
-	async cleanup() {
-	}
+	async cleanup() {}
 
-	async getCssUrls(pageUrl) {
+	async getCssUrls( pageUrl ) {
 		return await this.runInPage(
 			pageUrl,
 			null,
@@ -17,10 +16,10 @@ class BrowserInterface {
 		);
 	}
 
-	static innerGetCssUrls(window) {
-		return [...window.document.getElementsByTagName('link')]
-			.filter((link) => link.rel === 'stylesheet')
-			.map((link) => link.href);
+	static innerGetCssUrls( window ) {
+		return [ ...window.document.getElementsByTagName( 'link' ) ]
+			.filter( ( link ) => link.rel === 'stylesheet' )
+			.map( ( link ) => link.href );
 	}
 }
 
