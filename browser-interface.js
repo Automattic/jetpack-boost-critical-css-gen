@@ -17,8 +17,8 @@ class BrowserInterface {
 		);
 	}
 
-	static innerGetCssUrls() {
-		return [...document.getElementsByTagName('link')]
+	static innerGetCssUrls(window) {
+		return [...window.document.getElementsByTagName('link')]
 			.filter((link) => link.rel === 'stylesheet')
 			.map((link) => link.href);
 	}

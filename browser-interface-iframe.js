@@ -46,7 +46,7 @@ class BrowserInterfaceIframe extends BrowserInterface {
 			await this.resize( viewport );
 		}
 
-		return method( this.iframe.contentWindow, this.iframe.contentDocument, ...args );
+		return method( this.iframe.contentWindow, ...args );
 	}
 
 	addGetParameters( rawUrl ) {

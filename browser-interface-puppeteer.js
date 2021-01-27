@@ -18,9 +18,11 @@ class BrowserInterfacePuppeteer extends BrowserInterface {
 			await page.setViewport(viewport);
 		}
 
-		return page.evaluate(( ...args ) => {
-			method( window, document, ...args )
-		});
+		// Get the inner window to pass to inner method.
+		const window = await page.evaluateHandle( () => window );
+
+		// Call inner method within the puppeteer context.
+		return page.evaluate(method, window, ...args);
 	}
 }
 

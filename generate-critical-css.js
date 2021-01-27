@@ -35,10 +35,10 @@ async function generateCriticalCSS({
 			const pageSelectors = await browserInterface.runInPage(
 				url,
 				null,
-				(innerWindow, innerDocument, selectorText, trimmedSelectors) => {
+				(innerWindow, selectorText, trimmedSelectors) => {
 					return selectorText.filter((selector) => {
 						try {
-							return !!innerDocument.querySelector(
+							return !!innerWindow.document.querySelector(
 								trimmedSelectors[selector]
 							);
 						} catch (err) {
@@ -63,7 +63,7 @@ async function generateCriticalCSS({
 				const pageAboveFold = await browserInterface.runInPage(
 					url,
 					size,
-					(innerWindow, innerDocument, pageSelectors, trimmedSelectors) => {
+					(innerWindow, pageSelectors, trimmedSelectors) => {
 						const isAboveFold = (element) => {
 							const originalClearStyle = element.style.clear || '';
 							element.style.clear = 'none';
@@ -80,7 +80,7 @@ async function generateCriticalCSS({
 								return true;
 							}
 
-							const matches = innerDocument.querySelectorAll(
+							const matches = innerWindow.document.querySelectorAll(
 								trimmedSelectors[s]
 							);
 							for (const match of matches) {
