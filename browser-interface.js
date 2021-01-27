@@ -6,6 +6,9 @@ class BrowserInterface {
 		);
 	}
 
+	async cleanup() {
+	}
+
 	async getCssUrls(pageUrl) {
 		return await this.runInPage(
 			pageUrl,

@@ -18,7 +18,9 @@ class BrowserInterfacePuppeteer extends BrowserInterface {
 			await page.setViewport(viewport);
 		}
 
-		return page.evaluate(method, ...args);
+		return page.evaluate(( ...args ) => {
+			method( window, document, ...args )
+		});
 	}
 }
 
