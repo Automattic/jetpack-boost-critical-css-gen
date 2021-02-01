@@ -3,7 +3,7 @@ module.exports = {
 	setupFilesAfterEnv: ['./tests/config/jest-setup.js'],
 	collectCoverageFrom: ['lib/**/*.js', 'index.js'],
 	globalSetup: 'jest-environment-puppeteer/setup',
-	lobalTeardown: 'jest-environment-puppeteer/teardown',
+	globalTeardown: 'jest-environment-puppeteer/teardown',
 	testEnvironment: 'jest-environment-puppeteer',
 	testPathIgnorePatterns: [
 		'/node_modules/',

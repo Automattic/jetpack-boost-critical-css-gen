@@ -23,18 +23,32 @@ div.seven_sixty_eight {
 	top: 768px;
 }
 
-div.media_800_plus {
-	display: none;
+@media print {
+	div.top::before {
+		content: "print";
+	}
 }
 
-@media (min-width: 800px) {
-	div.media_800_plus {
-		display: block;
-		position: absolute;
-		top: 0px;
-		left: 0px;
-		width: 10px;
-		height: 10px;
-		background-color: blue;
+@media not screen {
+	div.top::before {
+		content: "not screen";
+	}
+}
+
+@media print {
+	div.top::before {
+		content: "print";
+	}
+}
+
+@media screen {
+	div.top::before {
+		content: "screen";
+	}
+}
+
+@media all {
+	div.top::before {
+		content: "all";
 	}
 }
