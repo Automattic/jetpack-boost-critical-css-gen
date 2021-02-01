@@ -1,6 +1,11 @@
 const { dataDirectory } = require( './data-directory' );
 const fs = require( 'fs' );
 
+/**
+ * Mocked out version of node-fetch; allows fetching local resources from the data directory.
+ *
+ * @param {string} url to fetch.
+ */
 const mockFetch = async ( url ) => {
 	return new Promise( ( resolve, reject ) => {
 		const localPath = fs.realpathSync( url.substring( 7 ) );
