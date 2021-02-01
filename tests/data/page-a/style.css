@@ -1,0 +1,40 @@
+body {
+	padding: 0px;
+	margin: 0px;
+}
+
+div.top {
+	position: absolute;
+	top: 0px;
+}
+
+div.four_eighty {
+	position: absolute;
+	top: 480px;
+}
+
+div.six_hundred {
+	position: absolute;
+	top: 600px;
+}
+
+div.seven_sixty_eight {
+	position: absolute;
+	top: 768px;
+}
+
+div.media_800_plus {
+	display: none;
+}
+
+@media (min-width: 800px) {
+	div.media_800_plus {
+		display: block;
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		width: 10px;
+		height: 10px;
+		background-color: blue;
+	}
+}
