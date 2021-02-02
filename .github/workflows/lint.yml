@@ -1,0 +1,19 @@
+name: Code Lint
+on: [push]
+jobs:
+  lint:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Repository Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Linter
+        run: npm run lint
