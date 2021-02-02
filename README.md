@@ -2,7 +2,6 @@
 Critical CSS Generator built for Jetpack Boost. It can generate Critical CSS on the server-side using Puppeteer, or on the client-side using iframes. It also supports generating blocks of Critical CSS that can apply to multiple URLs, and/or multiple viewports.
 
 # TODO
-- Basic test suite.
 - More thorough documentation and examples.
 
 # Basic API
