@@ -24,6 +24,10 @@ export interface CssFilters {
 	properties?: ( name: string, value: string ) => boolean,
 }
 
+export declare class CriticalCssError {
+	toJSON(): any;
+}
+
 export declare function generateCriticalCSS( args: {
 	browserInterface: BrowserInterface,
 	progressCallback?: ( step: number, stepCount: number ) => void,
