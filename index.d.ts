@@ -12,6 +12,7 @@ export declare class BrowserInterfaceIframe implements BrowserInterface {
 		loadTimeout?: number,
 		resizeTimeout?: number,
 		verifyPage?: ( url: string, contentWindow: Window, contentDocument: Document ) => boolean,
+		allowScripts?: boolean, // Defaults to true if unspecified.
 	} );
 }
 
