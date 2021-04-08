@@ -10,7 +10,6 @@ export declare class BrowserInterfaceIframe implements BrowserInterface {
 	constructor( args?: {
 		requestGetParameters?: { [ key: string ]: string },
 		loadTimeout?: number,
-		resizeTimeout?: number,
 		verifyPage?: ( url: string, contentWindow: Window, contentDocument: Document ) => boolean,
 		allowScripts?: boolean, // Defaults to true if unspecified.
 	} );
