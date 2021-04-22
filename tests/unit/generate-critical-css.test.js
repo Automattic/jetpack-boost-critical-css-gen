@@ -21,7 +21,7 @@ let testPages = {};
  * @param {Object[]} testSets Sets of tests to run, and strings the result should / should not contain.
  */
 async function runTestSet( testSets ) {
-	for ( const { urls, viewports, shouldContain, shouldNotContain } of testSets ) {
+	for ( const { urls, viewports, shouldContain, shouldNotContain, shouldMatch } of testSets ) {
 		const [ css, warnings ] = await generateCriticalCSS({
 			urls: urls || Object.values( testPageUrls ),
 			viewports: viewports || [ { width: 640, height: 480 } ],
@@ -36,6 +36,10 @@ async function runTestSet( testSets ) {
 
 		for ( const shouldNot of shouldNotContain || [] ) {
 			expect( css ).not.toContain( shouldNot );
+		}
+
+		for ( const regexp of shouldMatch || [] ) {
+			expect( css ).toMatch( regexp );
 		}
 	}
 }
@@ -84,6 +88,23 @@ describe( 'Generate Critical CSS', () => {
 			] );
 		} );
 
+		it( 'Excludes Critical CSS from a <link media="print"> tag', async () => {
+			await runTestSet( [
+				{
+					shouldNotContain: [ 'sir_not_appearing_in_this_film' ],
+				}
+			] );
+		} );
+
+		it( 'Includes implicit @media rules inherited from <link> tags', async () => {
+			await runTestSet( [
+				{
+					shouldMatch: [
+						/@media\s+\(\s*min-width:\s*50px\s*\)\s*{\s*@media\s+screen\s*{/
+					],
+				}
+			] );
+		} );
 	} );
 
 } );
