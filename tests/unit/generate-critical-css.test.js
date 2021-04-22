@@ -105,6 +105,16 @@ describe( 'Generate Critical CSS', () => {
 				}
 			] );
 		} );
+
+		it( 'Can manage complex implicit @media rules inherited from <link> tags', async () => {
+			await runTestSet( [
+				{
+					shouldContain: [
+						'@media only screen and (max-device-width:480px) and (orientation:landscape){div.complex_media_rules{',
+					]
+				}
+			] );
+		} );
 	} );
 
 } );
