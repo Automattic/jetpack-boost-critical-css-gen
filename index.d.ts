@@ -27,6 +27,7 @@ export interface CssFilters {
 export declare class CriticalCssError {
 	hasUrl(): boolean;
 	toJSON(): any;
+	get( key: string ): any;
 	static fromJSON: ( data: any ) => CriticalCssError;
 }
 
