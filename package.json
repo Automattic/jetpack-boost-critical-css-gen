@@ -23,6 +23,7 @@
 		"@rollup/plugin-commonjs": "^19.0.0",
 		"@rollup/plugin-json": "^4.1.0",
 		"@rollup/plugin-node-resolve": "^13.0.0",
+		"@wordpress/eslint-plugin": "^9.0.5",
 		"eslint": "^7.27.0",
 		"eslint-plugin-jest": "^24.3.6",
 		"express": "^4.17.1",
