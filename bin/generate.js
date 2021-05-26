@@ -1,5 +1,8 @@
 const puppeteer = require( 'puppeteer' );
-const { generateCriticalCSS, BrowserInterfacePuppeteer } = require( '../index' );
+const {
+	generateCriticalCSS,
+	BrowserInterfacePuppeteer,
+} = require( '../index' );
 
 async function main() {
 	const urls = process.argv.slice( 2 );
@@ -20,7 +23,7 @@ async function main() {
 
 	console.log( 'Generating Critical CSS...' );
 
-	const [ css, warnings ] = await generateCriticalCSS({
+	const [ css, warnings ] = await generateCriticalCSS( {
 		urls,
 		viewports: [
 			{ width: 414, height: 896 },
@@ -28,7 +31,7 @@ async function main() {
 			{ width: 1920, height: 1080 },
 		],
 		browserInterface: new BrowserInterfacePuppeteer( testPages ),
-	});
+	} );
 
 	if ( warnings.length ) {
 		console.log( '\n\nwarnings => ' );
@@ -39,7 +42,9 @@ async function main() {
 	console.log( css );
 }
 
-main().catch( err => {
-	console.error( err );
-	process.exit( 1 ); 
-} ).then( () => process.exit( 0 ) );
+main()
+	.catch( ( err ) => {
+		console.error( err );
+		process.exit( 1 );
+	} )
+	.then( () => process.exit( 0 ) );
