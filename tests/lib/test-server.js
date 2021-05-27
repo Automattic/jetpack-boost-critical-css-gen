@@ -11,6 +11,7 @@ class TestServer {
 	constructor( staticPaths ) {
 		this.port = null;
 		this.app = null;
+		this.server = null;
 		this.middleware = null;
 		this.staticPaths = staticPaths || [];
 	}
@@ -30,8 +31,8 @@ class TestServer {
 		this.app.use( ( req, res ) => res.send( '<html><head><script src="main.min.js"></script></head><body></body></html>' ) );
 
 		return new Promise( ( resolve ) => {
-			const server = this.app.listen( () => {
-				this.port = server.address().port;
+			this.server = this.app.listen( () => {
+				this.port = this.server.address().port;
 				resolve();
 			} );
 		} );
@@ -42,8 +43,8 @@ class TestServer {
 			this.middleware.close();
 		}
 
-		if ( this.app ) {
-			this.app.close();
+		if ( this.app && this.server ) {
+			this.server.close();
 		}
 	}
 
