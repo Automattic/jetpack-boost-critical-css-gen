@@ -163,4 +163,35 @@ describe( 'Iframe interface', () => {
 		await page.close();
 	} );
 
+	it( 'Does not load more pages than the successTarget.max specifies', async () => {
+		const page = await browser.newPage();
+		await page.goto( testServer.getUrl() );
+
+		const pageA = path.join( testServer.getUrl(), 'page-a' );
+		const pageB = path.join( testServer.getUrl(), 'page-b' );
+
+		const [ css, warnings, pages ] = await page.evaluate( async ( pageA, pageB ) => {
+			let pagesVerified = [];
+			const result = await TestGenerator.generateCriticalCSS( {
+				urls: [ 'about:blank', pageA, pageB ],
+				viewports: [ { width: 640, height: 480 } ],
+				browserInterface: new TestGenerator.BrowserInterfaceIframe( {
+					verifyPage: ( url, innerWindow, innerDocument) => {
+						pagesVerified.push( url );
+						return !! innerDocument.querySelector( 'meta[name="testing-page"]' );
+					},
+				} ),
+				successTargets: { max: 1 }
+			} );
+
+			return [ ...result, pagesVerified ];
+		}, pageA, pageB );
+
+		expect( pages ).not.toContain( pageB );
+		expect( warnings ).toHaveLength( 0 );
+		expect( css ).toContain( 'div.top' );
+
+		await page.close();
+	} );
+
 } );
