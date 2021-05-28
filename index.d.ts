@@ -38,4 +38,8 @@ export declare function generateCriticalCSS( args: {
 	urls: string[],
 	viewports: Array< { width: number, height: number } >,
 	filters?: CssFilters,
+	successTargets?: {
+		min?: number,
+		max?: number,
+	}
 } ): Promise< [ string, Error[] ] >;

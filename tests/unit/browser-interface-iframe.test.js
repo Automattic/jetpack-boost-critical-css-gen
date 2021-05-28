@@ -37,7 +37,7 @@ describe( 'Iframe interface', () => {
 				browserInterface: new TestGenerator.BrowserInterfaceIframe( {
 					verifyPage: ( url, innerWindow, innerDocument) => {
 						return !! innerDocument.querySelector( 'meta[name="testing-page"]' );
-					}
+					},
 				} ),
 			} );
 		}, innerUrl );
@@ -107,6 +107,53 @@ describe( 'Iframe interface', () => {
 					},
 					allowScripts: false,
 				} ),
+			} );
+		}, innerUrl );
+
+		expect( warnings ).toHaveLength( 0 );
+		expect( css ).toContain( 'div.top' );
+
+		await page.close();
+	} );
+
+	it( 'Throws an error if a successTargets.min is not met', async () => {
+		const page = await browser.newPage();
+		await page.goto( testServer.getUrl() );
+
+		const innerUrl = path.join( testServer.getUrl(), 'page-a' );
+
+		await expect(async () => {
+			await page.evaluate( () => {
+				return TestGenerator.generateCriticalCSS( {
+					urls: [ 'about:blank', 'about:blank' ],
+					viewports: [ { width: 640, height: 480 } ],
+					browserInterface: new TestGenerator.BrowserInterfaceIframe( {
+						verifyPage: () => false,
+					} ),
+					successTargets: { min: 1 }
+				} );
+			} );
+		}).rejects.toThrow( /Insufficient pages loaded/ );
+
+		await page.close();
+	} );
+
+	it( 'Does not throw an error if successTargets.min is met', async () => {
+		const page = await browser.newPage();
+		await page.goto( testServer.getUrl() );
+
+		const innerUrl = path.join( testServer.getUrl(), 'page-a' );
+
+		const [ css, warnings ] = await page.evaluate( ( url ) => {
+			return TestGenerator.generateCriticalCSS( {
+				urls: [ 'about:blank', url ],
+				viewports: [ { width: 640, height: 480 } ],
+				browserInterface: new TestGenerator.BrowserInterfaceIframe( {
+					verifyPage: ( url, innerWindow, innerDocument) => {
+						return !! innerDocument.querySelector( 'meta[name="testing-page"]' );
+					},
+				} ),
+				successTargets: { min: 1 }
 			} );
 		}, innerUrl );
 
