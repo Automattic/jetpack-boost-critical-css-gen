@@ -4,6 +4,7 @@
 	"version": "0.0.1",
 	"license": "GPL-2.0-or-later",
 	"scripts": {
+		"prepare": "npm run bundle",
 		"bundle": "rollup -c",
 		"lint": "eslint . && echo '✔ eslint ran successfully.'",
 		"lint:fix": "eslint --fix . && echo '✔ eslint ran successfully.'",
