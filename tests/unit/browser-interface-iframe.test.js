@@ -116,7 +116,7 @@ describe( 'Iframe interface', () => {
 		await page.close();
 	} );
 
-	it( 'Throws an error if a successTargets.min is not met', async () => {
+	it( 'Throws an error if a successRatio is not met', async () => {
 		const page = await browser.newPage();
 		await page.goto( testServer.getUrl() );
 
@@ -130,7 +130,7 @@ describe( 'Iframe interface', () => {
 					browserInterface: new TestGenerator.BrowserInterfaceIframe( {
 						verifyPage: () => false,
 					} ),
-					successTargets: { min: 1 }
+					successRatio: 0.5
 				} );
 			} );
 		}).rejects.toThrow( /Insufficient pages loaded/ );
@@ -138,7 +138,7 @@ describe( 'Iframe interface', () => {
 		await page.close();
 	} );
 
-	it( 'Does not throw an error if successTargets.min is met', async () => {
+	it( 'Does not throw an error if successRatio is met', async () => {
 		const page = await browser.newPage();
 		await page.goto( testServer.getUrl() );
 
@@ -153,7 +153,7 @@ describe( 'Iframe interface', () => {
 						return !! innerDocument.querySelector( 'meta[name="testing-page"]' );
 					},
 				} ),
-				successTargets: { min: 1 }
+				successRatio: 0.5
 			} );
 		}, innerUrl );
 
@@ -163,7 +163,7 @@ describe( 'Iframe interface', () => {
 		await page.close();
 	} );
 
-	it( 'Does not load more pages than the successTarget.max specifies', async () => {
+	it( 'Does not load more pages than the successRatio specifies', async () => {
 		const page = await browser.newPage();
 		await page.goto( testServer.getUrl() );
 
@@ -173,7 +173,7 @@ describe( 'Iframe interface', () => {
 		const [ css, warnings, pages ] = await page.evaluate( async ( pageA, pageB ) => {
 			let pagesVerified = [];
 			const result = await TestGenerator.generateCriticalCSS( {
-				urls: [ 'about:blank', pageA, pageB ],
+				urls: [ 'about:blank', pageA, pageB, 'about:blank' ],
 				viewports: [ { width: 640, height: 480 } ],
 				browserInterface: new TestGenerator.BrowserInterfaceIframe( {
 					verifyPage: ( url, innerWindow, innerDocument) => {
@@ -181,7 +181,7 @@ describe( 'Iframe interface', () => {
 						return !! innerDocument.querySelector( 'meta[name="testing-page"]' );
 					},
 				} ),
-				successTargets: { max: 1 }
+				successRatio: 0.25
 			} );
 
 			return [ ...result, pagesVerified ];
