@@ -38,5 +38,5 @@ export declare function generateCriticalCSS( args: {
 	urls: string[],
 	viewports: Array< { width: number, height: number } >,
 	filters?: CssFilters,
-	successRatio?: number
+	successRatio?: number,
 } ): Promise< [ string, Error[] ] >;
