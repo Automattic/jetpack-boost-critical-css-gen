@@ -29,6 +29,7 @@ export declare class CriticalCssError {
 	toJSON(): any;
 	get( key: string ): any;
 	getType(): string;
+	getChildren(): CriticalCssError[];
 	static fromJSON: ( data: any ) => CriticalCssError;
 }
 
@@ -38,4 +39,5 @@ export declare function generateCriticalCSS( args: {
 	urls: string[],
 	viewports: Array< { width: number, height: number } >,
 	filters?: CssFilters,
+	successRatio?: number,
 } ): Promise< [ string, Error[] ] >;
