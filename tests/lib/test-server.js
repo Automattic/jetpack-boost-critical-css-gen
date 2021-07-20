@@ -28,7 +28,7 @@ class TestServer {
 			this.app.use( '/' + virtualPath, express.static( realDirectory ) )
 		}
 
-		this.app.use( ( req, res ) => res.send( '<html><head><script src="main.min.js"></script></head><body></body></html>' ) );
+		this.app.use( ( req, res ) => res.send( '<html><head><script src="main.js"></script></head><body></body></html>' ) );
 
 		return new Promise( ( resolve ) => {
 			this.server = this.app.listen( () => {

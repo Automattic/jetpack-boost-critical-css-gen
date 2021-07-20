@@ -8,7 +8,7 @@ const webpack = require( 'webpack' );
 module.exports = {
 	entry: __dirname + '/main.js',
 	output: {
-		filename: 'main.min.js',
+		filename: 'main.js',
 	},
 	target: 'web',
 	performance: {
@@ -29,6 +29,9 @@ module.exports = {
 			os: require.resolve( 'os-browserify/browser' ),
 			url: false,
 		}
+	},
+	optimization: {
+		minimize: false,
 	},
 	plugins: [
 		new webpack.ProvidePlugin( {
