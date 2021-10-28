@@ -13,8 +13,11 @@
 		"ecmaVersion": 2020
 	},
 	"extends": [
-		"eslint:recommended"
+		"eslint:recommended",
+		"plugin:@wordpress/eslint-plugin/recommended"
 	],
-	"ignorePatterns": [ "dist/**" ]
+	"rules": {
+		"no-unused-vars": [ "error", { "args": "after-used", "argsIgnorePattern": "^_" }]
+	}
 }
 

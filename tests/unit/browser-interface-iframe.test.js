@@ -37,7 +37,7 @@ describe( 'Iframe interface', () => {
 				browserInterface: new TestGenerator.BrowserInterfaceIframe( {
 					verifyPage: ( url, innerWindow, innerDocument) => {
 						return !! innerDocument.querySelector( 'meta[name="testing-page"]' );
-					}
+					},
 				} ),
 			} );
 		}, innerUrl );
@@ -110,6 +110,84 @@ describe( 'Iframe interface', () => {
 			} );
 		}, innerUrl );
 
+		expect( warnings ).toHaveLength( 0 );
+		expect( css ).toContain( 'div.top' );
+
+		await page.close();
+	} );
+
+	it( 'Throws an error if a successRatio is not met', async () => {
+		const page = await browser.newPage();
+		await page.goto( testServer.getUrl() );
+
+		const innerUrl = path.join( testServer.getUrl(), 'page-a' );
+
+		await expect(async () => {
+			await page.evaluate( () => {
+				return TestGenerator.generateCriticalCSS( {
+					urls: [ 'about:blank', 'about:blank' ],
+					viewports: [ { width: 640, height: 480 } ],
+					browserInterface: new TestGenerator.BrowserInterfaceIframe( {
+						verifyPage: () => false,
+					} ),
+					successRatio: 0.5
+				} );
+			} );
+		}).rejects.toThrow( /Insufficient pages loaded/ );
+
+		await page.close();
+	} );
+
+	it( 'Does not throw an error if successRatio is met', async () => {
+		const page = await browser.newPage();
+		await page.goto( testServer.getUrl() );
+
+		const innerUrl = path.join( testServer.getUrl(), 'page-a' );
+
+		const [ css, warnings ] = await page.evaluate( ( url ) => {
+			return TestGenerator.generateCriticalCSS( {
+				urls: [ 'about:blank', url ],
+				viewports: [ { width: 640, height: 480 } ],
+				browserInterface: new TestGenerator.BrowserInterfaceIframe( {
+					verifyPage: ( url, innerWindow, innerDocument) => {
+						return !! innerDocument.querySelector( 'meta[name="testing-page"]' );
+					},
+				} ),
+				successRatio: 0.5
+			} );
+		}, innerUrl );
+
+		expect( warnings ).toHaveLength( 0 );
+		expect( css ).toContain( 'div.top' );
+
+		await page.close();
+	} );
+
+	it( 'Does not load more pages than the successRatio specifies', async () => {
+		const page = await browser.newPage();
+		await page.goto( testServer.getUrl() );
+
+		const pageA = path.join( testServer.getUrl(), 'page-a' );
+		const pageB = path.join( testServer.getUrl(), 'page-b' );
+
+		const [ css, warnings, pages ] = await page.evaluate( async ( pageA, pageB ) => {
+			let pagesVerified = [];
+			const result = await TestGenerator.generateCriticalCSS( {
+				urls: [ 'about:blank', pageA, pageB, 'about:blank' ],
+				viewports: [ { width: 640, height: 480 } ],
+				browserInterface: new TestGenerator.BrowserInterfaceIframe( {
+					verifyPage: ( url, innerWindow, innerDocument) => {
+						pagesVerified.push( url );
+						return !! innerDocument.querySelector( 'meta[name="testing-page"]' );
+					},
+				} ),
+				successRatio: 0.25
+			} );
+
+			return [ ...result, pagesVerified ];
+		}, pageA, pageB );
+
+		expect( pages ).not.toContain( pageB );
 		expect( warnings ).toHaveLength( 0 );
 		expect( css ).toContain( 'div.top' );
 
