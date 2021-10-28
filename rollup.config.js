@@ -8,7 +8,7 @@ import builtins from 'rollup-plugin-node-builtins';
 export default {
 	input: 'index.js',
 	output: {
-		sourcemap: true,
+		sourcemap: false,
 		format: 'iife',
 		name: 'CriticalCSSGenerator',
 		file: 'dist/critical-calc.min.js',
