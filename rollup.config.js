@@ -11,7 +11,7 @@ export default {
 		sourcemap: true,
 		format: 'iife',
 		name: 'CriticalCSSGenerator',
-		file: 'dist/bundle.js',
+		file: 'dist/critical-calc.min.js',
 	},
 
 	plugins: [
