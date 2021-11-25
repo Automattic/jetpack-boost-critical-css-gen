@@ -1,7 +1,7 @@
-const puppeteer = require( 'puppeteer' );
+const playwright = require( 'playwright' );
 const {
 	generateCriticalCSS,
-	BrowserInterfacePuppeteer,
+	BrowserInterfacePlaywright,
 } = require( '../index' );
 
 async function main() {
@@ -14,7 +14,7 @@ async function main() {
 	console.log( 'Loading pages: ' );
 	console.log( urls );
 
-	const browser = await puppeteer.launch();
+	const browser = await playwright.chromium.launch();
 	const testPages = {};
 	for ( const url of urls ) {
 		testPages[ url ] = await browser.newPage();
@@ -30,7 +30,7 @@ async function main() {
 			{ width: 1200, height: 800 },
 			{ width: 1920, height: 1080 },
 		],
-		browserInterface: new BrowserInterfacePuppeteer( testPages ),
+		browserInterface: new BrowserInterfacePlaywright( testPages ),
 	} );
 
 	if ( warnings.length ) {
