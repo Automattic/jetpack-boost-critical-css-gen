@@ -6,14 +6,14 @@ This is a work in progress, and its API is not guaranteed to be stable. :)
 
 # Basic API
 ```
-const { BrowserInterfacePuppeteer, BrowserInterfaceIframe, generateCriticalCSS } = require( 'jetpack-boost-critical-css-gen' );
+const { BrowserInterfacePlaywright, BrowserInterfacePuppeteer, BrowserInterfaceIframe, generateCriticalCSS } = require( 'jetpack-boost-critical-css-gen' );
 const [css, warnings] = generateCriticalCSS( options );
 ```
 
 Where `options` is an object with the following keys:
 - `urls` (required) - An array of URLs to generate Critical CSS for.
 - `viewports` (required) - An array of viewport sizes to generate Critical CSS for. Each entry should be an object with a `width` and `height` property.
-- `browserInterface` (required) - An instance of either `BrowserInterfacePuppeteer` or `BrowserInterfaceIframe` which defines an interface for the Generator to query the (real or virtual) browser.
+- `browserInterface` (required) - An instance of `BrowserInterfacePlaywright` or `BrowserInterfacePuppeteer` or `BrowserInterfaceIframe` which defines an interface for the Generator to query the (real or virtual) browser.
 - `progressCallback` - A callback to receive progress information, with two arguments; `step` and `stepCount`. Each are integers; progress percentage can be expressed in the form `percentage = step * 100 / stepCount`.
 - `filters` - An object describing a filter to run each property and/or atRule through for inclusion.
 

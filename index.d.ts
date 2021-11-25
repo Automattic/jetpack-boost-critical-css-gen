@@ -1,10 +1,13 @@
 interface BrowserInterface {}
 
-interface PuppeteerPage {
+interface NodeAPIPage {
 	setViewport( args: { width: number, height: number } ): void;
 	evaluateHandle( getter: () => any ): Promise< any >;
 	evaluate( method: string | ((arg1: T, ...args: any[]) => any), window: Window, ...args: any[] ): Promise< any >;
 }
+
+interface PuppeteerPage extends NodeAPIPage {}
+interface PlaywrightPage extends NodeAPIPage {}
 
 export declare class BrowserInterfaceIframe implements BrowserInterface {
 	constructor( args?: {
@@ -17,6 +20,10 @@ export declare class BrowserInterfaceIframe implements BrowserInterface {
 
 export declare class BrowserInterfacePuppeteer implements BrowserInterface {
 	constructor( pages: { [ url: string ]: PuppeteerPage } );
+}
+
+export declare class BrowserInterfacePlaywright implements BrowserInterface {
+	constructor( pages: { [ url: string ]: PlaywrightPage } );
 }
 
 export interface CssFilters {
