@@ -1,13 +1,15 @@
 interface BrowserInterface {}
 
-interface NodeAPIPage {
+interface PuppeteerPage {
 	setViewport( args: { width: number, height: number } ): void;
 	evaluateHandle( getter: () => any ): Promise< any >;
 	evaluate( method: string | ((arg1: T, ...args: any[]) => any), window: Window, ...args: any[] ): Promise< any >;
 }
 
-interface PuppeteerPage extends NodeAPIPage {}
-interface PlaywrightPage extends NodeAPIPage {}
+interface PlaywrightPage {
+	setViewportSize( args: { width: number, height: number } ): void;
+	evaluate( method: string | ((arg1: T, ...args: any[]) => any), window: Window, ...args: any[] ): Promise< any >;
+}
 
 export declare class BrowserInterfaceIframe implements BrowserInterface {
 	constructor( args?: {
