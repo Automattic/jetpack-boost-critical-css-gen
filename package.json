@@ -36,6 +36,7 @@
 		"jest-environment-puppeteer": "^5.0.4",
 		"os-browserify": "^0.3.0",
 		"path-browserify": "^1.0.1",
+		"playwright": "^1.16.3",
 		"prettier": "npm:wp-prettier@^2.0.5",
 		"process": "^0.11.10",
 		"puppeteer": "^9.1.1",

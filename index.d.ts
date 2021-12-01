@@ -6,6 +6,11 @@ interface PuppeteerPage {
 	evaluate( method: string | ((arg1: T, ...args: any[]) => any), window: Window, ...args: any[] ): Promise< any >;
 }
 
+interface PlaywrightPage {
+	setViewportSize( args: { width: number, height: number } ): void;
+	evaluate( method: string | ((arg1: T, ...args: any[]) => any), window: Window, ...args: any[] ): Promise< any >;
+}
+
 export declare class BrowserInterfaceIframe implements BrowserInterface {
 	constructor( args?: {
 		requestGetParameters?: { [ key: string ]: string },
@@ -17,6 +22,10 @@ export declare class BrowserInterfaceIframe implements BrowserInterface {
 
 export declare class BrowserInterfacePuppeteer implements BrowserInterface {
 	constructor( pages: { [ url: string ]: PuppeteerPage } );
+}
+
+export declare class BrowserInterfacePlaywright implements BrowserInterface {
+	constructor( pages: { [ url: string ]: PlaywrightPage } );
 }
 
 export interface CssFilters {
