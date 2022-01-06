@@ -1,0 +1,17 @@
+name: Add issues to Project Board
+
+on:
+  issues:
+    types: [opened, edited, reopened, labeled]
+
+jobs:
+  insert:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: leonsteinhaeuser/project-beta-automations@v1.0.3
+        with:
+          gh_token: ${{ secrets.PROJECT_MANAGEMENT_TOKEN }}
+          organization: 'automattic'
+          project_id: 322
+          resource_node_id: ${{ github.event.issue.node_id }}
