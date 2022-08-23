@@ -1,0 +1,8 @@
+{
+	"include": [ "index.ts", "lib/*" ],
+	"esModuleInterop": true,
+	"compilerOptions": {
+        "target": "ESNext",
+		"sourceMap": true
+	}
+}

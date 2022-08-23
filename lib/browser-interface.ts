@@ -1,18 +1,26 @@
-class BrowserInterface {
+import type { Viewport } from './types';
+
+export class BrowserInterface {
+	private urlErrors: { [ url: string ]: Error };
+
 	constructor() {
 		this.urlErrors = {};
 	}
 
-	trackUrlError( url, error ) {
+	trackUrlError( url: string, error: Error ) {
 		this.urlErrors[ url ] = error;
 	}
 
-	filterValidUrls( urls ) {
+	filterValidUrls( urls: string[] ): string[] {
 		return urls.filter( ( url ) => ! this.urlErrors[ url ] );
 	}
 
-	// eslint-disable-next-line no-unused-vars
-	async runInPage( pageUrl, viewport, method, ...args ) {
+	async runInPage< ReturnType >(
+		_pageUrl: string,
+		_viewport: Viewport | null,
+		method: Function,
+		...args: any[]
+	): Promise< ReturnType > {
 		throw new Error(
 			'Undefined interface method: BrowserInterface.runInPage()'
 		);
@@ -22,11 +30,15 @@ class BrowserInterface {
 	 * Context-specific wrapper for fetch; uses window.fetch in browsers, or a
 	 * node library when using Puppeteer.
 	 *
-	 * @param {string} _url     URL to fetch.
-	 * @param {Object} _options Fetch options.
-	 * @param {string} _role    'css' or 'html' indicating what kind of thing is being fetched.
+	 * @param {string}      _url     URL to fetch.
+	 * @param {RequestInit} _options Fetch options.
+	 * @param {string}      _role    'css' or 'html' indicating what kind of thing is being fetched.
 	 */
-	async fetch( _url, _options, _role ) {
+	async fetch(
+		_url: string,
+		_options: RequestInit,
+		_role: 'css' | 'html'
+	): Promise< Response > {
 		throw new Error(
 			'Undefined interface method: BrowserInterface.fetch()'
 		);
@@ -34,7 +46,9 @@ class BrowserInterface {
 
 	async cleanup() {}
 
-	async getCssIncludes( pageUrl ) {
+	async getCssIncludes(
+		pageUrl: string
+	): Promise< { [ url: string ]: { media: string } } > {
 		return await this.runInPage(
 			pageUrl,
 			null,
@@ -65,7 +79,10 @@ class BrowserInterface {
 	 * @param {Object[]} wrappedArgs.args        - Array of arguments.
 	 *                                           {Object} wrappedArgs.args[selectors] - Map containing selectors (object keys), and simplified versions for easy matching (values).
 	 */
-	static innerFindMatchingSelectors( { innerWindow, args: [ selectors ] } ) {
+	public static innerFindMatchingSelectors( {
+		innerWindow,
+		args: [ selectors ],
+	} ) {
 		innerWindow = null === innerWindow ? window : innerWindow;
 		return Object.keys( selectors ).filter( ( selector ) => {
 			try {
@@ -90,10 +107,10 @@ class BrowserInterface {
 	 *                                           {Object} wrappedArgs.args[selectors] - Map containing selectors (object keys), and simplified versions for easy matching (values).
 	 *                                           {string[]} wrappedArgs.args[pageSelectors] - String array containing selectors that appear anywhere on this page (as returned by innerFindMatchingSelectors) - should be a subset of keys in selectors.
 	 */
-	static innerFindAboveFoldSelectors( {
+	public static innerFindAboveFoldSelectors( {
 		innerWindow,
 		args: [ selectors, pageSelectors ],
-	} ) {
+	} ): string[] {
 		/**
 		 * Inner helper function used inside browser / iframe to check if the given
 		 * element is "above the fold".
@@ -130,5 +147,3 @@ class BrowserInterface {
 		} );
 	}
 }
-
-module.exports = BrowserInterface;

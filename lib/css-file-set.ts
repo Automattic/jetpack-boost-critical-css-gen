@@ -1,17 +1,29 @@
-const { HttpError, UnknownError, UrlError } = require( './errors' );
-const StyleAST = require( './style-ast' );
+import { BrowserInterface } from './browser-interface';
+import { HttpError, UnknownError, UrlError } from './errors';
+import { StyleAST } from './style-ast';
+import { FilterSpec } from './types';
 
 // Maximum number of iterations when pruning unused variables.
 const maxVarPruneIterations = 10;
+
+type CSSFile = {
+	css: string;
+	ast: StyleAST;
+	pages: string[];
+	urls: string[];
+};
 
 /**
  * Represents a set of CSS files found on one or more HTML page. Automatically de-duplicates
  * CSS files by URL and by content, and parses each into an Abstract Syntax Tree. Also tracks
  * all errors that occur while loading or parsing CSS.
  */
-class CSSFileSet {
-	constructor( browserInterface ) {
-		this.browserInterface = browserInterface;
+export class CSSFileSet {
+	private knownUrls: { [ url: string ]: CSSFile | Error };
+	private cssFiles: CSSFile[];
+	private errors: Error[];
+
+	constructor( private browserInterface: BrowserInterface ) {
 		this.knownUrls = {};
 		this.cssFiles = [];
 		this.errors = [];
@@ -23,8 +35,11 @@ class CSSFileSet {
 	 * @param {string} page        - URL of the page the CSS URLs were found on.
 	 * @param {Object} cssIncludes - Included CSS Files. Keyed by URL.
 	 */
-	async addMultiple( page, cssIncludes ) {
-		return Promise.all(
+	async addMultiple(
+		page: string,
+		cssIncludes: { [ url: string ]: { media: string } }
+	) {
+		await Promise.all(
 			Object.keys( cssIncludes ).map( ( url ) =>
 				this.add( page, url, cssIncludes[ url ] )
 			)
@@ -38,7 +53,11 @@ class CSSFileSet {
 	 * @param {string} cssUrl   - The CSS file URL.
 	 * @param {Object} settings
 	 */
-	async add( page, cssUrl, settings = {} ) {
+	async add(
+		page: string,
+		cssUrl: string,
+		settings: { [ url: string ]: string } = {}
+	): Promise< void > {
 		// Add by reference if we already know this file.
 		if ( Object.prototype.hasOwnProperty.call( this.knownUrls, cssUrl ) ) {
 			if ( this.knownUrls[ cssUrl ] instanceof Error ) {
@@ -46,7 +65,11 @@ class CSSFileSet {
 				return;
 			}
 
-			this.addExtraReference( page, cssUrl, this.knownUrls[ cssUrl ] );
+			this.addExtraReference(
+				page,
+				cssUrl,
+				this.knownUrls[ cssUrl ] as CSSFile
+			);
 			return;
 		}
 
@@ -58,7 +81,7 @@ class CSSFileSet {
 				'css'
 			);
 			if ( ! response.ok ) {
-				throw new HttpError( { code: response.code, url: cssUrl } );
+				throw new HttpError( { code: response.status, url: cssUrl } );
 			}
 
 			let css = await response.text();
@@ -90,7 +113,7 @@ class CSSFileSet {
 	 *
 	 * @return {Object} - An object with selector text keys, each containing a Set of page URLs (strings)
 	 */
-	collateSelectorPages() {
+	collateSelectorPages(): { [ selector: string ]: Set< string > } {
 		const selectors = {};
 
 		for ( const file of this.cssFiles ) {
@@ -114,7 +137,7 @@ class CSSFileSet {
 	 *
 	 * @param {{properties: Function, atRules: Function}} filters
 	 */
-	applyFilters( filters ) {
+	applyFilters( filters: FilterSpec ): void {
 		for ( const file of this.cssFiles ) {
 			file.ast.applyFilters( filters );
 		}
@@ -126,7 +149,7 @@ class CSSFileSet {
 	 *
 	 * @param {Set<string>} usefulSelectors - Set of selectors to keep.
 	 */
-	prunedAsts( usefulSelectors ) {
+	prunedAsts( usefulSelectors: Set< string > ): StyleAST[] {
 		// Perform basic pruning.
 		let asts = this.cssFiles.map( ( file ) => {
 			return file.ast.pruned( usefulSelectors );
@@ -140,7 +163,7 @@ class CSSFileSet {
 			const usedVariables = asts.reduce( ( set, ast ) => {
 				ast.getUsedVariables().forEach( ( v ) => set.add( v ) );
 				return set;
-			}, new Set() );
+			}, new Set< string >() );
 
 			// If the number of used vars hasn't changed since last iteration, stop early.
 			if (
@@ -168,7 +191,7 @@ class CSSFileSet {
 		const fontWhitelist = asts.reduce( ( set, ast ) => {
 			ast.getUsedFontFamilies().forEach( ( font ) => set.add( font ) );
 			return set;
-		}, new Set() );
+		}, new Set< string >() );
 
 		// Remove any fonts that aren't used above the fold.
 		asts.forEach( ( ast ) => ast.pruneNonCriticalFonts( fontWhitelist ) );
@@ -187,7 +210,7 @@ class CSSFileSet {
 	 * @param {string} cssUrl - URL of the CSS file.
 	 * @param {string} css    - Content of the CSS File.
 	 */
-	storeCss( page, cssUrl, css ) {
+	storeCss( page: string, cssUrl: string, css: string ): void {
 		// De-duplicate css contents in case cache busters in URLs or WAFs, etc confound URL de-duplication.
 		const matchingFile = this.cssFiles.find( ( file ) => file.css === css );
 		if ( matchingFile ) {
@@ -214,7 +237,11 @@ class CSSFileSet {
 	 * @param {string} cssUrl       - URL of the CSS File.
 	 * @param {Object} matchingFile - Internal CSS File object.
 	 */
-	addExtraReference( page, cssUrl, matchingFile ) {
+	addExtraReference(
+		page: string,
+		cssUrl: string,
+		matchingFile: CSSFile
+	): void {
 		this.knownUrls[ cssUrl ] = matchingFile;
 		matchingFile.pages.push( page );
 
@@ -229,7 +256,7 @@ class CSSFileSet {
 	 * @param {string} url - CSS URL that failed to fetch or parse.
 	 * @param {Error}  err - Error object describing the problem.
 	 */
-	storeError( url, err ) {
+	storeError( url: string, err: Error ): void {
 		this.knownUrls[ url ] = err;
 		this.errors.push( err );
 	}
@@ -243,5 +270,3 @@ class CSSFileSet {
 		return this.errors;
 	}
 }
-
-module.exports = CSSFileSet;

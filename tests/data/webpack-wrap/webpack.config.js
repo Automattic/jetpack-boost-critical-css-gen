@@ -6,9 +6,15 @@
 const webpack = require( 'webpack' );
 
 module.exports = {
-	entry: __dirname + '/main.js',
+	entry: __dirname + '/main.ts',
 	output: {
 		filename: 'main.js',
+	},
+	module: {
+		rules: [ {
+			test: /\.ts$/,
+			loader: 'ts-loader',
+		} ],
 	},
 	target: 'web',
 	performance: {
@@ -18,6 +24,7 @@ module.exports = {
 	},
 	mode: 'production',
 	resolve: {
+		extensions: [ '.ts', '.js' ],
 		alias: {
 			process: 'process/browser',
 		},

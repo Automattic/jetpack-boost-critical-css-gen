@@ -1,13 +1,18 @@
-const BrowserInterface = require( './browser-interface' );
+import { Viewport } from './types';
+import { Page } from 'puppeteer';
+import { BrowserInterface } from './browser-interface';
 
-class BrowserInterfacePuppeteer extends BrowserInterface {
-	constructor( pages ) {
+export class BrowserInterfacePuppeteer extends BrowserInterface {
+	constructor( private pages: { [ url: string ]: Page } ) {
 		super();
-
-		this.pages = pages;
 	}
 
-	async runInPage( pageUrl, viewport, method, ...args ) {
+	async runInPage< ReturnType >(
+		pageUrl: string,
+		viewport: Viewport | null,
+		method: Function,
+		...args: any[]
+	): Promise< ReturnType > {
 		const page = this.pages[ pageUrl ];
 
 		if ( ! page ) {
@@ -26,7 +31,7 @@ class BrowserInterfacePuppeteer extends BrowserInterface {
 		// The inner window in Puppeteer is the directly accessible main window object.
 		// The evaluating method does not need a separate window object.
 		// Call inner method within the Puppeteer context.
-		return page.evaluate( method, { innerWindow: null, args } );
+		return page.evaluate( method.toString(), { innerWindow: null, args } );
 	}
 
 	/**
@@ -37,10 +42,8 @@ class BrowserInterfacePuppeteer extends BrowserInterface {
 	 * @param {Object} options Fetch options.
 	 * @param {string} _role   'css' or 'html' indicating what kind of thing is being fetched.
 	 */
-	async fetch( url, options, _role ) {
+	async fetch( url: string, options: RequestInit, _role: 'css' | 'html' ) {
 		const nodeFetch = require( 'node-fetch' );
 		return nodeFetch( url, options );
 	}
 }
-
-module.exports = BrowserInterfacePuppeteer;

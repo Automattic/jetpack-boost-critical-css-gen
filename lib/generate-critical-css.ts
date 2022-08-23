@@ -1,8 +1,9 @@
-const CSSFileSet = require( './css-file-set' );
-const { removeIgnoredPseudoElements } = require( './ignored-pseudo-elements' );
-const { minifyCss } = require( './minify-css' );
-const { SuccessTargetError, EmptyCSSError } = require( './errors' );
-const BrowserInterface = require( './browser-interface' );
+import { BrowserInterface } from './browser-interface';
+import { CSSFileSet } from './css-file-set';
+import { removeIgnoredPseudoElements } from './ignored-pseudo-elements';
+import { minifyCss } from './minify-css';
+import { SuccessTargetError, EmptyCSSError, UrlError } from './errors';
+import { FilterSpec, Viewport } from './types';
 
 /**
  * Collate and return a CSSFileSet object describing all the CSS files used by
@@ -15,7 +16,11 @@ const BrowserInterface = require( './browser-interface' );
  * @param {number}           successUrlsThreshold - success urls amount threshold
  * @return {Array} - Two member array; CSSFileSet, and an object containing errors that occurred at each URL.
  */
-async function collateCssFiles( browserInterface, urls, successUrlsThreshold ) {
+async function collateCssFiles(
+	browserInterface: BrowserInterface,
+	urls: string[],
+	successUrlsThreshold: number
+): Promise< [ CSSFileSet, { [ url: string ]: UrlError } ] > {
 	const cssFiles = new CSSFileSet( browserInterface );
 	const errors = {};
 	let successes = 0;
@@ -31,7 +36,7 @@ async function collateCssFiles( browserInterface, urls, successUrlsThreshold ) {
 				set[ absolute ] = cssIncludes[ relative ];
 
 				return set;
-			}, {} );
+			}, {} as typeof cssIncludes );
 
 			await cssFiles.addMultiple( url, absoluteIncludes );
 
@@ -68,7 +73,14 @@ async function getAboveFoldSelectors( {
 	viewports,
 	successUrlsThreshold,
 	updateProgress,
-} ) {
+}: {
+	browserInterface: BrowserInterface;
+	selectorPages: { [ selector: string ]: Set< string > };
+	validUrls: string[];
+	viewports: Viewport[];
+	successUrlsThreshold: number;
+	updateProgress: () => void;
+} ): Promise< Set< string > > {
 	// For each selector string, create a "trimmed" version with the stuff JavaScript can't handle cut out.
 	const trimmedSelectors = Object.keys( selectorPages ).reduce(
 		( set, selector ) => {
@@ -80,12 +92,14 @@ async function getAboveFoldSelectors( {
 
 	// Go through all the URLs looking for above-the-fold selectors, and selectors which may be "dangerous"
 	// i.e.: may match elements on pages that do not include their CSS file.
-	const aboveFoldSelectors = new Set();
-	const dangerousSelectors = new Set();
+	const aboveFoldSelectors = new Set< string >();
+	const dangerousSelectors = new Set< string >();
 
 	for ( const url of validUrls.slice( 0, successUrlsThreshold ) ) {
 		// Work out which CSS selectors match any element on this page.
-		const pageSelectors = await browserInterface.runInPage(
+		const pageSelectors = await browserInterface.runInPage<
+			ReturnType< typeof BrowserInterface.innerFindMatchingSelectors >
+		>(
 			url,
 			null,
 			BrowserInterface.innerFindMatchingSelectors,
@@ -101,7 +115,11 @@ async function getAboveFoldSelectors( {
 		for ( const size of viewports ) {
 			updateProgress();
 
-			const pageAboveFold = await browserInterface.runInPage(
+			const pageAboveFold = await browserInterface.runInPage<
+				ReturnType<
+					typeof BrowserInterface.innerFindAboveFoldSelectors
+				>
+			>(
 				url,
 				size,
 				BrowserInterface.innerFindAboveFoldSelectors,
@@ -121,14 +139,21 @@ async function getAboveFoldSelectors( {
 	return aboveFoldSelectors;
 }
 
-async function generateCriticalCSS( {
+export async function generateCriticalCSS( {
 	browserInterface,
 	progressCallback,
 	urls,
 	viewports,
 	filters,
 	successRatio = 1,
-} ) {
+}: {
+	browserInterface: BrowserInterface;
+	progressCallback: ( step: number, total: number ) => void;
+	urls: string[];
+	viewports: Viewport[];
+	filters: FilterSpec;
+	successRatio?: number;
+} ): Promise< [ string, Error[] ] > {
 	const successUrlsThreshold = Math.ceil( urls.length * successRatio );
 
 	try {
@@ -187,12 +212,12 @@ async function generateCriticalCSS( {
 		}
 
 		// Collect warnings / errors together.
-		const warnings = cssFiles.getErrors().concat( cssErrors );
+		const warnings = cssFiles
+			.getErrors()
+			.concat( cssErrors.map( ( s ) => new Error( s ) ) );
 
 		return [ css, warnings ];
 	} finally {
 		browserInterface.cleanup();
 	}
 }
-
-module.exports = generateCriticalCSS;
