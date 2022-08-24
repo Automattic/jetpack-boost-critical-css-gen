@@ -1,8 +1,14 @@
 import { Viewport } from './types';
-import { Page } from 'playwright';
 import { BrowserInterface } from './browser-interface';
 
-export class BrowserInterfacePlaywright extends BrowserInterface {
+// Avoid actually important Puppeteer; caller can use it if they want.
+// Just define enough of an interface to satisfy the caller.
+interface Page {
+	setViewport: ( viewport: Viewport ) => Promise< void >;
+	evaluate: ( fn: Function | string, args?: any ) => Promise< any >;
+}
+
+export class BrowserInterfacePuppeteer extends BrowserInterface {
 	constructor( private pages: { [ url: string ]: Page } ) {
 		super();
 	}
@@ -17,17 +23,20 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 
 		if ( ! page ) {
 			throw new Error(
-				`Playwright interface does not include URL ${ pageUrl }`
+				`Puppeteer interface does not include URL ${ pageUrl }`
 			);
 		}
 
 		if ( viewport ) {
-			await page.setViewportSize( viewport );
+			await page.setViewport( viewport );
 		}
 
-		// The inner window in Playwright is the directly accessible main window object.
+		// Get the inner window to pass to inner method.
+		// const window = await page.evaluateHandle( () => window );
+
+		// The inner window in Puppeteer is the directly accessible main window object.
 		// The evaluating method does not need a separate window object.
-		// Call inner method within the Playwright context.
+		// Call inner method within the Puppeteer context.
 		return page.evaluate( method.toString(), { innerWindow: null, args } );
 	}
 

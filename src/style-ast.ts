@@ -21,7 +21,11 @@ function isDeclaration( node: csstree.CssNode ): node is csstree.Declaration {
 
 function hasEmptyChildList( node: csstree.CssNode ): boolean {
 	if ( 'children' in node && node.children instanceof csstree.List ) {
-		return node.children.isEmpty();
+		if ( node.children.isEmpty instanceof Function ) {
+			return node.children.isEmpty();
+		} else {
+			return !! node.children.isEmpty;
+		}
 	}
 
 	return false;
@@ -263,7 +267,7 @@ export class StyleAST {
 						} );
 
 						// If empty MQ, remove from parent.
-						if ( mqrule.children && mqrule.children.isEmpty() ) {
+						if ( hasEmptyChildList( mqrule ) ) {
 							mqlist.remove( mqitem );
 						}
 					},

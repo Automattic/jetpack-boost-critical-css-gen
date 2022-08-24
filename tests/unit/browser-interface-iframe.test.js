@@ -1,4 +1,4 @@
-/* global browser, TestGenerator */
+/* global browser, CriticalCSSGenerator */
 
 const path = require( 'path' );
 const TestServer = require( '../lib/test-server' );
@@ -26,15 +26,16 @@ describe( 'Iframe interface', () => {
 
 	it( 'Successfully generates via iframes', async () => {
 		const page = await browser.newPage();
+		page.on( 'console', ( msg ) => process.stderr.write( msg.text() + '\n\n' ) );
 		await page.goto( testServer.getUrl() );
 
 		const innerUrl = path.join( testServer.getUrl(), 'page-a' );
 
 		const [ css, warnings ] = await page.evaluate( ( url ) => {
-			return TestGenerator.generateCriticalCSS( {
+			return CriticalCSSGenerator.generateCriticalCSS( {
 				urls: [ url ],
 				viewports: [ { width: 640, height: 480 } ],
-				browserInterface: new TestGenerator.BrowserInterfaceIframe( {
+				browserInterface: new CriticalCSSGenerator.BrowserInterfaceIframe( {
 					verifyPage: ( url, innerWindow, innerDocument) => {
 						return !! innerDocument.querySelector( 'meta[name="testing-page"]' );
 					},
@@ -57,7 +58,7 @@ describe( 'Iframe interface', () => {
 		// Will throw an error if the inner page does not contain
 		// 'script-created-content'; a string appended to page-a by a script.
 		await page.evaluate( async ( url ) => {
-			const iframeInterface = new TestGenerator.BrowserInterfaceIframe( {
+			const iframeInterface = new CriticalCSSGenerator.BrowserInterfaceIframe( {
 				verifyPage: ( url, innerWindow, innerDocument) => {
 					return innerDocument.documentElement.innerHTML.includes( 'script-created-content' );
 				}
@@ -78,7 +79,7 @@ describe( 'Iframe interface', () => {
 		// Will throw an error if the inner page contains
 		// 'script-created-content'; a string appended to page-a by a script.
 		await page.evaluate( async ( url ) => {
-			const iframeInterface = new TestGenerator.BrowserInterfaceIframe( {
+			const iframeInterface = new CriticalCSSGenerator.BrowserInterfaceIframe( {
 				verifyPage: ( url, innerWindow, innerDocument) => {
 					return ! innerDocument.documentElement.innerHTML.includes( 'script-created-content' );
 				},
@@ -98,10 +99,10 @@ describe( 'Iframe interface', () => {
 		const innerUrl = path.join( testServer.getUrl(), 'page-a' );
 
 		const [ css, warnings ] = await page.evaluate( ( url ) => {
-			return TestGenerator.generateCriticalCSS( {
+			return CriticalCSSGenerator.generateCriticalCSS( {
 				urls: [ url ],
 				viewports: [ { width: 640, height: 480 } ],
-				browserInterface: new TestGenerator.BrowserInterfaceIframe( {
+				browserInterface: new CriticalCSSGenerator.BrowserInterfaceIframe( {
 					verifyPage: ( url, innerWindow, innerDocument) => {
 						return !! innerDocument.querySelector( 'meta[name="testing-page"]' );
 					},
@@ -124,10 +125,10 @@ describe( 'Iframe interface', () => {
 
 		await expect(async () => {
 			await page.evaluate( () => {
-				return TestGenerator.generateCriticalCSS( {
+				return CriticalCSSGenerator.generateCriticalCSS( {
 					urls: [ 'about:blank', 'about:blank' ],
 					viewports: [ { width: 640, height: 480 } ],
-					browserInterface: new TestGenerator.BrowserInterfaceIframe( {
+					browserInterface: new CriticalCSSGenerator.BrowserInterfaceIframe( {
 						verifyPage: () => false,
 					} ),
 					successRatio: 0.5
@@ -145,10 +146,10 @@ describe( 'Iframe interface', () => {
 		const innerUrl = path.join( testServer.getUrl(), 'page-a' );
 
 		const [ css, warnings ] = await page.evaluate( ( url ) => {
-			return TestGenerator.generateCriticalCSS( {
+			return CriticalCSSGenerator.generateCriticalCSS( {
 				urls: [ 'about:blank', url ],
 				viewports: [ { width: 640, height: 480 } ],
-				browserInterface: new TestGenerator.BrowserInterfaceIframe( {
+				browserInterface: new CriticalCSSGenerator.BrowserInterfaceIframe( {
 					verifyPage: ( url, innerWindow, innerDocument) => {
 						return !! innerDocument.querySelector( 'meta[name="testing-page"]' );
 					},
@@ -172,10 +173,10 @@ describe( 'Iframe interface', () => {
 
 		const [ css, warnings, pages ] = await page.evaluate( async ( pageA, pageB ) => {
 			let pagesVerified = [];
-			const result = await TestGenerator.generateCriticalCSS( {
+			const result = await CriticalCSSGenerator.generateCriticalCSS( {
 				urls: [ 'about:blank', pageA, pageB, 'about:blank' ],
 				viewports: [ { width: 640, height: 480 } ],
-				browserInterface: new TestGenerator.BrowserInterfaceIframe( {
+				browserInterface: new CriticalCSSGenerator.BrowserInterfaceIframe( {
 					verifyPage: ( url, innerWindow, innerDocument) => {
 						pagesVerified.push( url );
 						return !! innerDocument.querySelector( 'meta[name="testing-page"]' );

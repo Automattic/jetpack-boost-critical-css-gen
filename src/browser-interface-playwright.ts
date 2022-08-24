@@ -1,8 +1,14 @@
 import { Viewport } from './types';
-import { Page } from 'puppeteer';
 import { BrowserInterface } from './browser-interface';
 
-export class BrowserInterfacePuppeteer extends BrowserInterface {
+// Avoid actually important Playwright; caller can use it if they want.
+// Just define enough of an interface to satisfy the caller.
+interface Page {
+	setViewportSize: ( viewport: Viewport ) => Promise< void >;
+	evaluate: ( fn: Function | string, arg?: any ) => Promise< any >;
+};
+
+export class BrowserInterfacePlaywright extends BrowserInterface {
 	constructor( private pages: { [ url: string ]: Page } ) {
 		super();
 	}
@@ -10,28 +16,25 @@ export class BrowserInterfacePuppeteer extends BrowserInterface {
 	async runInPage< ReturnType >(
 		pageUrl: string,
 		viewport: Viewport | null,
-		method: Function,
+		method: Function | string,
 		...args: any[]
 	): Promise< ReturnType > {
 		const page = this.pages[ pageUrl ];
 
 		if ( ! page ) {
 			throw new Error(
-				`Puppeteer interface does not include URL ${ pageUrl }`
+				`Playwright interface does not include URL ${ pageUrl }`
 			);
 		}
 
 		if ( viewport ) {
-			await page.setViewport( viewport );
+			await page.setViewportSize( viewport );
 		}
 
-		// Get the inner window to pass to inner method.
-		// const window = await page.evaluateHandle( () => window );
-
-		// The inner window in Puppeteer is the directly accessible main window object.
+		// The inner window in Playwright is the directly accessible main window object.
 		// The evaluating method does not need a separate window object.
-		// Call inner method within the Puppeteer context.
-		return page.evaluate( method.toString(), { innerWindow: null, args } );
+		// Call inner method within the Playwright context.
+		return page.evaluate( method, { innerWindow: null, args } );
 	}
 
 	/**
@@ -43,7 +46,7 @@ export class BrowserInterfacePuppeteer extends BrowserInterface {
 	 * @param {string} _role   'css' or 'html' indicating what kind of thing is being fetched.
 	 */
 	async fetch( url: string, options: RequestInit, _role: 'css' | 'html' ) {
-		const nodeFetch = require( 'node-fetch' );
-		return nodeFetch( url, options );
+		const fetch = require( 'node-fetch' );
+		return fetch( url, options );
 	}
 }

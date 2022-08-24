@@ -1,6 +1,13 @@
 const express = require( 'express' );
-const webpack = require( 'webpack' );
-const webpackDevMiddleware = require( 'webpack-dev-middleware' );
+
+const index = `
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<script src="./bundle.js"></script>
+		</head>
+	</html>
+`;
 
 /**
  * Test server with webpack middleware, used to test client-side / iframe version
@@ -17,18 +24,15 @@ class TestServer {
 	}
 
 	async start() {
-		const compiler = webpack( require( '../data/webpack-wrap/webpack.config.js' ) );
-		this.middleware = webpackDevMiddleware( compiler, { serverSideRender: true } );
-
 		this.app = express();
-		this.app.use( this.middleware );
+
+		this.app.use( '/bundle.js', express.static( require.resolve( '../../dist/bundle.js' ) ) );
 
 		for ( const [ virtualPath, realDirectory ] of Object.entries( this.staticPaths ) ) {
-			console.log( virtualPath, realDirectory );
 			this.app.use( '/' + virtualPath, express.static( realDirectory ) )
 		}
 
-		this.app.use( ( req, res ) => res.send( '<html><head><script src="main.js"></script></head><body></body></html>' ) );
+		this.app.use( '/', ( req, res ) => res.send( index ) );
 
 		return new Promise( ( resolve ) => {
 			this.server = this.app.listen( () => {
