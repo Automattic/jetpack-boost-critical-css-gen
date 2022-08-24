@@ -12,7 +12,7 @@
 		"watch": "rollup -c -w",
 		"lint": "eslint . && echo '✔ eslint ran successfully.'",
 		"lint:fix": "eslint --fix . && echo '✔ eslint ran successfully.'",
-		"test": "NODE_ENV=test jest --forceExit"
+		"test": "NODE_ENV=test jest --forceExit --config=tests/config/jest.config.js"
 	},
 	"husky": {
 		"hooks": {
