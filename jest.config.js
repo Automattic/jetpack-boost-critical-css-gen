@@ -14,6 +14,5 @@ export default {
 	moduleDirectories: [
 		"lib",
 		"node_modules",
-	],
-	transform: {},
+	]
 };

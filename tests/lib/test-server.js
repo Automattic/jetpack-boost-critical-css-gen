@@ -10,8 +10,7 @@ const index = `
 `;
 
 /**
- * Test server with webpack middleware, used to test client-side / iframe version
- * of Critical CSS generation.
+ * Test server , used to test client-side / iframe version of Critical CSS generation.
  */
 class TestServer {
 
@@ -19,7 +18,6 @@ class TestServer {
 		this.port = null;
 		this.app = null;
 		this.server = null;
-		this.middleware = null;
 		this.staticPaths = staticPaths || [];
 	}
 
@@ -43,10 +41,6 @@ class TestServer {
 	}
 
 	async stop() {
-		if ( this.middleware ) {
-			this.middleware.close();
-		}
-
 		if ( this.app && this.server ) {
 			this.server.close();
 		}

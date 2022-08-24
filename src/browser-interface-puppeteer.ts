@@ -37,7 +37,7 @@ export class BrowserInterfacePuppeteer extends BrowserInterface {
 		// The inner window in Puppeteer is the directly accessible main window object.
 		// The evaluating method does not need a separate window object.
 		// Call inner method within the Puppeteer context.
-		return page.evaluate( method.toString(), { innerWindow: null, args } );
+		return page.evaluate( method, { innerWindow: null, args } );
 	}
 
 	/**
