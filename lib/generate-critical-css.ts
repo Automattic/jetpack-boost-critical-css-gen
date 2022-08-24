@@ -148,10 +148,10 @@ export async function generateCriticalCSS( {
 	successRatio = 1,
 }: {
 	browserInterface: BrowserInterface;
-	progressCallback: ( step: number, total: number ) => void;
+	progressCallback?: ( step: number, total: number ) => void;
 	urls: string[];
 	viewports: Viewport[];
-	filters: FilterSpec;
+	filters?: FilterSpec;
 	successRatio?: number;
 } ): Promise< [ string, Error[] ] > {
 	const successUrlsThreshold = Math.ceil( urls.length * successRatio );

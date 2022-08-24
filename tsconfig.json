@@ -1,8 +1,11 @@
 {
-	"include": [ "index.ts", "lib/*" ],
+	"include": [ "index.ts", "lib/*", "tests/data/webpack-wrap/*" ],
 	"esModuleInterop": true,
 	"compilerOptions": {
-        "target": "ESNext",
-		"sourceMap": true
+        "target": "es6",
+		"module": "es6",
+		"sourceMap": true,
+		"allowJs": true,
+		"moduleResolution": "node",
 	}
 }

@@ -542,9 +542,7 @@ export class StyleAST {
 				}
 
 				// Gather family-name values.
-				const lexer: {
-					findDeclarationValueFragments: Function;
-				} = csstree as any;
+				const lexer = ( csstree as any ).lexer;
 				const frags = lexer.findDeclarationValueFragments(
 					node,
 					'Type',

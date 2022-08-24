@@ -1,6 +1,18 @@
 /* global browser */
 
-const { generateCriticalCSS, BrowserInterfacePuppeteer } = require( '../../index' );
+declare global {
+	namespace jest {
+		const mock: any;
+	}
+
+	const expect: any;
+	const describe: any;
+	const beforeAll: any;
+	const afterAll: any;
+	const it: any;
+}
+
+import { generateCriticalCSS, BrowserInterfacePuppeteer } from '../../index';
 const { dataUrl } = require( '../lib/data-directory' );
 const mockFetch = require( '../lib/mock-fetch' );
 const path = require( 'path' );
@@ -12,7 +24,7 @@ const testPageUrls = {
 	pageA: path.join( dataUrl, 'page-a/index.html' ),
 };
 
-let testPages = {};
+let testPages: { [ key: string ]: any } = {};
 
 /**
  * Run a batch of CSS generation test runs, verify the results contain (and do not contain) specific substrings.
