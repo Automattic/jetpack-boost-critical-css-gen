@@ -1,7 +1,6 @@
 import { Viewport } from './types';
 import { BrowserInterface, BrowserRunnable, FetchOptions } from './browser-interface';
 import type { Page } from 'puppeteer';
-import nodeFetch from 'node-fetch';
 
 export class BrowserInterfacePuppeteer extends BrowserInterface {
 	constructor( private pages: { [ url: string ]: Page } ) {
