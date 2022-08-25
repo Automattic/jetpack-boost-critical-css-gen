@@ -1,7 +1,6 @@
 import { Viewport } from './types';
 import { BrowserInterface, BrowserRunnable, FetchOptions } from './browser-interface';
 import type { Page } from 'playwright';
-import nodeFetch from 'node-fetch';
 
 export class BrowserInterfacePlaywright extends BrowserInterface {
 	constructor( private pages: { [ url: string ]: Page } ) {
@@ -39,6 +38,8 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	 * @param {string} _role   'css' or 'html' indicating what kind of thing is being fetched.
 	 */
 	async fetch( url: string, options: FetchOptions, _role: 'css' | 'html' ) {
-		return nodeFetch( url, options );
+		const nodeFetch = await import( 'node-fetch' );
+
+		return nodeFetch.default( url, options );
 	}
 }

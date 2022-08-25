@@ -21,10 +21,7 @@ function isDeclaration( node: csstree.CssNode ): node is csstree.Declaration {
 
 function hasEmptyChildList( node: csstree.CssNode ): boolean {
 	if ( 'children' in node && node.children instanceof csstree.List ) {
-		if ( node.children.isEmpty instanceof Function ) {
-			return node.children.isEmpty();
-		}
-		return !! node.children.isEmpty;
+		return node.children.isEmpty();
 	}
 
 	return false;

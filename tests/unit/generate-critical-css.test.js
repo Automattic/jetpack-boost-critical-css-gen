@@ -8,12 +8,15 @@ const { dataUrl } = require("../lib/data-directory");
 const mockFetch = require("../lib/mock-fetch");
 const path = require("path");
 
-jest.mock("node-fetch");
-require("node-fetch").mockImplementation(mockFetch);
-
 const testPageUrls = {
 	pageA: path.join(dataUrl, "page-a/index.html"),
 };
+
+class MockedFetchInterface extends BrowserInterfacePuppeteer {
+	fetch( url, options ) {
+		return mockFetch(url, options);
+	}
+}
 
 let testPages = {};
 
@@ -34,7 +37,7 @@ async function runTestSet(testSets) {
 		const [css, warnings] = await generateCriticalCSS({
 			urls: urls || Object.values(testPageUrls),
 			viewports: viewports || [{ width: 640, height: 480 }],
-			browserInterface: new BrowserInterfacePuppeteer(testPages),
+			browserInterface: new MockedFetchInterface(testPages),
 		});
 
 		expect(warnings).toHaveLength(0);

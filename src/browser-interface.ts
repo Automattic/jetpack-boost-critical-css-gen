@@ -4,7 +4,7 @@ export type BrowserRunnable< ReturnType > = ( arg: unknown ) => ReturnType;
 
 // Wrappers around parts of fetch that we rely on, to allow multiple stand-in implementations.
 export interface FetchOptions {
-	method: 'POST' | 'GET';
+	method?: 'POST' | 'GET';
 }
 export interface FetchResponse {
 	ok: boolean;
