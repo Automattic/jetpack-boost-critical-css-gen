@@ -13,11 +13,7 @@ import { Viewport, NullableViewport } from './types';
 
 const defaultLoadTimeout = 60 * 1000;
 
-type VerifyMethod = (
-	rawUrl: string,
-	contentWindow: Window,
-	contentDocument: Document
-) => Promise< boolean >;
+type VerifyMethod = ( rawUrl: string, contentWindow: Window, contentDocument: Document ) => boolean;
 
 type BrowserInterfaceIframeOptions = {
 	requestGetParameters?: { [ key: string ]: string };
