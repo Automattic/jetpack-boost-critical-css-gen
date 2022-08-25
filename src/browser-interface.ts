@@ -2,6 +2,14 @@ import type { Viewport } from './types';
 
 export type BrowserRunnable< ReturnType > = ( arg: unknown ) => ReturnType;
 
+// Wrappers around parts of fetch that we rely on, to allow multiple stand-in implementations.
+export interface FetchOptions {}
+export interface FetchResponse {
+	ok: boolean;
+	status: number;
+	text: () => Promise< string >;
+}
+
 export class BrowserInterface {
 	private urlErrors: { [ url: string ]: Error };
 
@@ -34,7 +42,7 @@ export class BrowserInterface {
 	 * @param  _options
 	 * @param  _role
 	 */
-	async fetch( _url: string, _options: RequestInit, _role: 'css' | 'html' ): Promise< Response > {
+	async fetch( _url: string, _options: FetchOptions, _role: 'css' | 'html' ): Promise< FetchResponse > {
 		throw new Error( 'Undefined interface method: BrowserInterface.fetch()' );
 	}
 

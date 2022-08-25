@@ -1,7 +1,7 @@
-const playwright = require("playwright");
-const { generateCriticalCSS, BrowserInterfacePlaywright } = require("../index");
-
 async function main() {
+	const playwright = await import("playwright");
+	const { generateCriticalCSS, BrowserInterfacePlaywright } = await import("../lib/index");
+
 	const urls = process.argv.slice(2);
 
 	if (urls.length === 0) {

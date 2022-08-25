@@ -1,6 +1,7 @@
 import { Viewport } from './types';
-import { BrowserInterface, BrowserRunnable } from './browser-interface';
+import { BrowserInterface, BrowserRunnable, FetchOptions } from './browser-interface';
 import type { Page } from 'playwright';
+import nodeFetch from 'node-fetch';
 
 export class BrowserInterfacePlaywright extends BrowserInterface {
 	constructor( private pages: { [ url: string ]: Page } ) {
@@ -37,11 +38,7 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	 * @param {Object} options Fetch options.
 	 * @param {string} _role   'css' or 'html' indicating what kind of thing is being fetched.
 	 */
-	async fetch( url: string, options: RequestInit, _role: 'css' | 'html' ) {
-		// Special case: only import node-fetch if used, to avoid unnecessary requirements.
-		// eslint-disable-next-line @typescript-eslint/no-var-requires
-		const fetch = require( 'node-fetch' );
-
-		return fetch( url, options );
+	async fetch( url: string, options: FetchOptions, _role: 'css' | 'html' ) {
+		return nodeFetch( url, options );
 	}
 }
