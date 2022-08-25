@@ -25,7 +25,7 @@ class TestServer {
 
 		this.app.use(
 			"/bundle.js",
-			express.static(require.resolve("../../dist/bundle.js"))
+			express.static(require.resolve("../../dist/bundle.full.js"))
 		);
 
 		for (const [virtualPath, realDirectory] of Object.entries(
