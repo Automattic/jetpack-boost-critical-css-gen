@@ -12,6 +12,6 @@ jobs:
       - uses: leonsteinhaeuser/project-beta-automations@v1.0.3
         with:
           gh_token: ${{ secrets.PROJECT_MANAGEMENT_TOKEN }}
-          organization: 'automattic'
+          organization: "automattic"
           project_id: 322
           resource_node_id: ${{ github.event.issue.node_id }}

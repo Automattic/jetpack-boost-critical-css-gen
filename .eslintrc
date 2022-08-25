@@ -1,7 +1,5 @@
 {
-	"plugins": [
-		"jest"
-	],
+	"plugins": ["jest"],
 	"env": {
 		"browser": true,
 		"node": true,
@@ -18,7 +16,9 @@
 		"plugin:@wordpress/eslint-plugin/recommended"
 	],
 	"rules": {
-		"no-unused-vars": [ "error", { "args": "after-used", "argsIgnorePattern": "^_" }]
+		"no-unused-vars": [
+			"error",
+			{ "args": "after-used", "argsIgnorePattern": "^_" }
+		]
 	}
 }
-

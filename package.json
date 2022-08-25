@@ -8,8 +8,8 @@
 	"scripts": {
 		"build": "tsc --declaration && rollup -c",
 		"prepare": "npm run build",
-		"lint": "eslint . && echo '✔ eslint ran successfully.'",
-		"lint:fix": "eslint --fix . && echo '✔ eslint ran successfully.'",
+		"lint": "prettier --check . && eslint . && echo '✔ eslint and prettier ran successfully.'",
+		"lint:fix": "prettier --write . && eslint --fix . && echo '✔ eslint and prettier ran successfully.'",
 		"test": "NODE_ENV=test jest --forceExit --config=tests/config/jest.config.js"
 	},
 	"husky": {
@@ -32,6 +32,7 @@
 		"jest-environment-puppeteer": "^6.1.1",
 		"os-browserify": "^0.3.0",
 		"path-browserify": "^1.0.1",
+		"prettier": "^2.7.1",
 		"puppeteer": "^16.2.0",
 		"rollup": "^2.78.1",
 		"rollup-plugin-polyfill-node": "^0.10.2",

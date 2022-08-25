@@ -1,6 +1,6 @@
 {
-	"include": [ "src/**/*" ],
-	"exclude": [ "node_modules/**/*" ],
+	"include": ["src/**/*"],
+	"exclude": ["node_modules/**/*"],
 	"compilerOptions": {
 		"outDir": "./lib",
 		"target": "ES2021",
@@ -8,6 +8,6 @@
 		"sourceMap": true,
 		"allowJs": false,
 		"moduleResolution": "node",
-		"allowSyntheticDefaultImports": true,
+		"allowSyntheticDefaultImports": true
 	}
 }

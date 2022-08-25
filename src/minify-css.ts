@@ -1,4 +1,4 @@
-import CleanCSS from 'clean-css';
+import CleanCSS from "clean-css";
 
 /**
  * Minifies the given CSS, returning it as a string. Any errors that occur are returned
@@ -10,12 +10,12 @@ import CleanCSS from 'clean-css';
  *
  *                     return {[ string, string[] ]} - Minified CSS and a list of errors returned.
  */
-export function minifyCss( css: string ): [ string, string[] ] {
-	const result = new CleanCSS().minify( css );
+export function minifyCss(css: string): [string, string[]] {
+	const result = new CleanCSS().minify(css);
 
-	if ( ! result.styles ) {
-		return [ css, result.errors ];
+	if (!result.styles) {
+		return [css, result.errors];
 	}
 
-	return [ result.styles, result.errors ];
+	return [result.styles, result.errors];
 }
