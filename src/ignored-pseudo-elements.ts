@@ -1,11 +1,11 @@
 const ignoredPseudoElements = [
-	"after",
-	"before",
-	"first-(line|letter)",
-	"(input-)?placeholder",
-	"scrollbar",
-	"search(results-)?decoration",
-	"search-(cancel|results)-button",
+	'after',
+	'before',
+	'first-(line|letter)',
+	'(input-)?placeholder',
+	'scrollbar',
+	'search(results-)?decoration',
+	'search-(cancel|results)-button',
 ];
 
 let removePseudoElementRegex: RegExp;
@@ -17,14 +17,12 @@ let removePseudoElementRegex: RegExp;
  * @return {RegExp} A RegExp to use when removing unwanted pseudo elements.
  */
 function getRemovePseudoElementRegex(): RegExp {
-	if (removePseudoElementRegex) {
+	if ( removePseudoElementRegex ) {
 		return removePseudoElementRegex;
 	}
 
-	const allIgnored = ignoredPseudoElements.join("|");
-	removePseudoElementRegex = new RegExp(
-		"::?(-(moz|ms|webkit)-)?(" + allIgnored + ")"
-	);
+	const allIgnored = ignoredPseudoElements.join( '|' );
+	removePseudoElementRegex = new RegExp( '::?(-(moz|ms|webkit)-)?(' + allIgnored + ')' );
 
 	return removePseudoElementRegex;
 }
@@ -36,6 +34,6 @@ function getRemovePseudoElementRegex(): RegExp {
  *
  * @return {string} selector with ignored pseudo elements removed.
  */
-export function removeIgnoredPseudoElements(selector: string): string {
-	return selector.replace(getRemovePseudoElementRegex(), "").trim();
+export function removeIgnoredPseudoElements( selector: string ): string {
+	return selector.replace( getRemovePseudoElementRegex(), '' ).trim();
 }

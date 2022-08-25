@@ -1,11 +1,11 @@
-import * as csstree from "css-tree";
-import { AtRuleFilter, FilterSpec, PropertiesFilter } from "./types";
+import * as csstree from 'css-tree';
+import { AtRuleFilter, FilterSpec, PropertiesFilter } from './types';
 
-const validMediaTypes = ["all", "print", "screen", "speech"];
+const validMediaTypes = [ 'all', 'print', 'screen', 'speech' ];
 const base64Pattern = /data:[^,]*;base64,/;
 const stringPattern = /^(["']).*\1$/;
 const maxBase64Length = 1000;
-const excludedSelectors = [/::?(?:-moz-)?selection/];
+const excludedSelectors = [ /::?(?:-moz-)?selection/ ];
 const excludedProperties = [
 	/(.*)animation/,
 	/(.*)transition(.*)/,
@@ -15,17 +15,16 @@ const excludedProperties = [
 	/(.*)user-select/,
 ];
 
-function isDeclaration(node: csstree.CssNode): node is csstree.Declaration {
-	return node.type === "Declaration";
+function isDeclaration( node: csstree.CssNode ): node is csstree.Declaration {
+	return node.type === 'Declaration';
 }
 
-function hasEmptyChildList(node: csstree.CssNode): boolean {
-	if ("children" in node && node.children instanceof csstree.List) {
-		if (node.children.isEmpty instanceof Function) {
+function hasEmptyChildList( node: csstree.CssNode ): boolean {
+	if ( 'children' in node && node.children instanceof csstree.List ) {
+		if ( node.children.isEmpty instanceof Function ) {
 			return node.children.isEmpty();
-		} else {
-			return !!node.children.isEmpty;
 		}
+		return !! node.children.isEmpty;
 	}
 
 	return false;
@@ -36,11 +35,7 @@ function hasEmptyChildList(node: csstree.CssNode): boolean {
  * methods for pruning and rearranging it.
  */
 export class StyleAST {
-	constructor(
-		private css: string,
-		private ast: csstree.CssNode,
-		private errors: Error[]
-	) {}
+	constructor( private css: string, private ast: csstree.CssNode, private errors: Error[] ) {}
 
 	/**
 	 * Given a base URL (where the CSS file this AST was built from), find all relative URLs and
@@ -48,21 +43,21 @@ export class StyleAST {
 	 *
 	 * @param {string} base base URL for relative URLs.
 	 */
-	absolutifyUrls(base: string): void {
-		csstree.walk(this.ast, {
-			visit: "Url",
-			enter: (url) => {
-				if (url.value && url.value.type === "String") {
-					const value = StyleAST.readValue(url.value);
-					const absolute = new URL(value, base).toString();
+	absolutifyUrls( base: string ): void {
+		csstree.walk( this.ast, {
+			visit: 'Url',
+			enter: url => {
+				if ( url.value && url.value.type === 'String' ) {
+					const value = StyleAST.readValue( url.value );
+					const absolute = new URL( value, base ).toString();
 
-					if (absolute !== value) {
+					if ( absolute !== value ) {
 						// URLs are encoded; " will not appear in it, so this is safe.
 						url.value.value = '"' + absolute + '"';
 					}
 				}
 			},
-		});
+		} );
 	}
 
 	/**
@@ -80,12 +75,12 @@ export class StyleAST {
 	 *
 	 * @return {StyleAST} - New AST with pruned contents.
 	 */
-	pruned(criticalSelectors: Set<string>): StyleAST {
-		const clone = new StyleAST(this.css, csstree.clone(this.ast), this.errors);
+	pruned( criticalSelectors: Set< string > ): StyleAST {
+		const clone = new StyleAST( this.css, csstree.clone( this.ast ), this.errors );
 
 		clone.pruneMediaQueries();
 		clone.pruneKeyframes();
-		clone.pruneNonCriticalSelectors(criticalSelectors);
+		clone.pruneNonCriticalSelectors( criticalSelectors );
 		clone.pruneExcludedProperties();
 		clone.pruneLargeBase64Embeds();
 		clone.pruneComments();
@@ -99,11 +94,11 @@ export class StyleAST {
 	 * @param {Object} node - Node from the AST.
 	 * @return {string} original text the node was compiled from.
 	 */
-	originalText(node: csstree.CssNode): string {
-		if (node.loc && node.loc.start && node.loc.end) {
-			return this.css.substring(node.loc.start.offset, node.loc.end.offset);
+	originalText( node: csstree.CssNode ): string {
+		if ( node.loc && node.loc.start && node.loc.end ) {
+			return this.css.substring( node.loc.start.offset, node.loc.end.offset );
 		}
-		return "";
+		return '';
 	}
 
 	/**
@@ -111,17 +106,17 @@ export class StyleAST {
 	 *
 	 * @param {{properties: Function, atRules: Function}} filters
 	 */
-	applyFilters(filters: FilterSpec): void {
-		if (!filters) {
+	applyFilters( filters: FilterSpec ): void {
+		if ( ! filters ) {
 			return;
 		}
 
-		if (filters.properties) {
-			this.applyPropertiesFilter(filters.properties);
+		if ( filters.properties ) {
+			this.applyPropertiesFilter( filters.properties );
 		}
 
-		if (filters.atRules) {
-			this.applyAtRulesFilter(filters.atRules);
+		if ( filters.atRules ) {
+			this.applyAtRulesFilter( filters.atRules );
 		}
 	}
 
@@ -130,18 +125,15 @@ export class StyleAST {
 	 *
 	 * @param {Function} filter to apply.
 	 */
-	applyPropertiesFilter(filter: PropertiesFilter): void {
-		csstree.walk(this.ast, {
-			visit: "Declaration",
-			enter: (declaration, item, list) => {
-				if (
-					filter(declaration.property, this.originalText(declaration.value)) ===
-					false
-				) {
-					list.remove(item);
+	applyPropertiesFilter( filter: PropertiesFilter ): void {
+		csstree.walk( this.ast, {
+			visit: 'Declaration',
+			enter: ( declaration, item, list ) => {
+				if ( filter( declaration.property, this.originalText( declaration.value ) ) === false ) {
+					list.remove( item );
 				}
 			},
-		});
+		} );
 	}
 
 	/**
@@ -149,15 +141,15 @@ export class StyleAST {
 	 *
 	 * @param {Function} filter to apply.
 	 */
-	applyAtRulesFilter(filter: AtRuleFilter): void {
-		csstree.walk(this.ast, {
-			visit: "Atrule",
-			enter: (atrule, item, list) => {
-				if (filter(atrule.name) === false) {
-					list.remove(item);
+	applyAtRulesFilter( filter: AtRuleFilter ): void {
+		csstree.walk( this.ast, {
+			visit: 'Atrule',
+			enter: ( atrule, item, list ) => {
+				if ( filter( atrule.name ) === false ) {
+					list.remove( item );
 				}
 			},
-		});
+		} );
 	}
 
 	/**
@@ -167,27 +159,27 @@ export class StyleAST {
 	 * @param {Set< string >} usedVariables - Set of used variables to keep.
 	 * @return {number} variables pruned.
 	 */
-	pruneUnusedVariables(usedVariables: Set<string>): number {
+	pruneUnusedVariables( usedVariables: Set< string > ): number {
 		let pruned = 0;
 
-		csstree.walk(this.ast, {
-			visit: "Declaration",
-			enter: (declaration, item, list) => {
+		csstree.walk( this.ast, {
+			visit: 'Declaration',
+			enter: ( declaration, item, list ) => {
 				// Ignore declarations that aren't defining variables.
-				if (!declaration.property.startsWith("--")) {
+				if ( ! declaration.property.startsWith( '--' ) ) {
 					return;
 				}
 
 				// Check if this declared variable is used.
-				if (usedVariables.has(declaration.property)) {
+				if ( usedVariables.has( declaration.property ) ) {
 					return;
 				}
 
 				// Prune unused variable.
-				list.remove(item);
+				list.remove( item );
 				pruned++;
 			},
-		});
+		} );
 
 		return pruned;
 	}
@@ -195,21 +187,21 @@ export class StyleAST {
 	/**
 	 * Find all variables that are used and return them as a Set.
 	 */
-	getUsedVariables(): Set<string> {
-		const usedVariables = new Set<string>();
+	getUsedVariables(): Set< string > {
+		const usedVariables = new Set< string >();
 
-		csstree.walk(this.ast, {
-			visit: "Function",
-			enter: (func) => {
+		csstree.walk( this.ast, {
+			visit: 'Function',
+			enter: func => {
 				// Ignore functions that aren't var()
-				if (csstree.keyword(func.name).name !== "var") {
+				if ( csstree.keyword( func.name ).name !== 'var' ) {
 					return;
 				}
 
-				const names = func.children.map(StyleAST.readValue);
-				names.forEach((name) => usedVariables.add(name));
+				const names = func.children.map( StyleAST.readValue );
+				names.forEach( name => usedVariables.add( name ) );
 			},
-		});
+		} );
 
 		return usedVariables;
 	}
@@ -218,68 +210,68 @@ export class StyleAST {
 	 * Remove all comments from the syntax tree.
 	 */
 	pruneComments(): void {
-		csstree.walk(this.ast, {
-			visit: "Comment",
-			enter: (_, item, list) => {
-				list.remove(item);
+		csstree.walk( this.ast, {
+			visit: 'Comment',
+			enter: ( _, item, list ) => {
+				list.remove( item );
 			},
-		});
+		} );
 	}
 
 	/**
 	 * Remove media queries that only apply to print.
 	 */
 	pruneMediaQueries(): void {
-		csstree.walk(this.ast, {
-			visit: "Atrule",
-			enter: (atrule, atitem, atlist) => {
+		csstree.walk( this.ast, {
+			visit: 'Atrule',
+			enter: ( atrule, atitem, atlist ) => {
 				// Ignore non-media and invalid atrules.
-				if (csstree.keyword(atrule.name).name !== "media" || !atrule.prelude) {
+				if ( csstree.keyword( atrule.name ).name !== 'media' || ! atrule.prelude ) {
 					return;
 				}
 
 				// Go through all MediaQueryLists (should be one, but let's be sure).
-				csstree.walk(atrule, {
-					visit: "MediaQueryList",
-					enter: (mqrule, mqitem, mqlist) => {
+				csstree.walk( atrule, {
+					visit: 'MediaQueryList',
+					enter: ( mqrule, mqitem, mqlist ) => {
 						// Filter out MediaQueries that aren't interesting.
-						csstree.walk(mqrule, {
-							visit: "MediaQuery",
-							enter: (mediaQuery, mediaItem, mediaList) => {
-								if (!StyleAST.isUsefulMediaQuery(mediaQuery)) {
-									mediaList.remove(mediaItem);
+						csstree.walk( mqrule, {
+							visit: 'MediaQuery',
+							enter: ( mediaQuery, mediaItem, mediaList ) => {
+								if ( ! StyleAST.isUsefulMediaQuery( mediaQuery ) ) {
+									mediaList.remove( mediaItem );
 								}
 							},
-						});
+						} );
 
 						// If empty MQ, remove from parent.
-						if (hasEmptyChildList(mqrule)) {
-							mqlist.remove(mqitem);
+						if ( hasEmptyChildList( mqrule ) ) {
+							mqlist.remove( mqitem );
 						}
 					},
-				});
+				} );
 
 				// If there are no useful media query lists left, throw away the block.
-				if (hasEmptyChildList(atrule.prelude)) {
-					atlist.remove(atitem);
+				if ( hasEmptyChildList( atrule.prelude ) ) {
+					atlist.remove( atitem );
 				}
 			},
-		});
+		} );
 	}
 
 	/**
 	 * Remove keyframe definitions.
 	 */
 	pruneKeyframes(): void {
-		csstree.walk(this.ast, {
-			visit: "Atrule",
-			enter: (atrule, atitem, atlist) => {
+		csstree.walk( this.ast, {
+			visit: 'Atrule',
+			enter: ( atrule, atitem, atlist ) => {
 				// Ignore non-keyframes.
-				if (csstree.keyword(atrule.name).basename === "keyframes") {
-					atlist.remove(atitem);
+				if ( csstree.keyword( atrule.name ).basename === 'keyframes' ) {
+					atlist.remove( atitem );
 				}
 			},
-		});
+		} );
 	}
 
 	/**
@@ -287,12 +279,8 @@ export class StyleAST {
 	 *
 	 * @param {Object} rule - CSS rule.
 	 */
-	static isKeyframeRule(rule: csstree.WalkContext): boolean {
-		return (
-			(rule.atrule &&
-				csstree.keyword(rule.atrule.name).basename === "keyframes") ||
-			false
-		);
+	static isKeyframeRule( rule: csstree.WalkContext ): boolean {
+		return ( rule.atrule && csstree.keyword( rule.atrule.name ).basename === 'keyframes' ) || false;
 	}
 
 	/**
@@ -301,130 +289,122 @@ export class StyleAST {
 	 *
 	 * @param {Function} callback - Callback to call with each selector.
 	 */
-	forEachSelector(callback: (selector: string) => void): void {
-		csstree.walk(this.ast, {
-			visit: "Rule",
-			enter(rule) {
+	forEachSelector( callback: ( selector: string ) => void ): void {
+		csstree.walk( this.ast, {
+			visit: 'Rule',
+			enter( rule ) {
 				// Ignore rules inside @keyframes.
-				if (StyleAST.isKeyframeRule(this)) {
+				if ( StyleAST.isKeyframeRule( this ) ) {
 					return;
 				}
 
 				// Ignore invalid rules.
-				if (rule.prelude.type !== "SelectorList") {
+				if ( rule.prelude.type !== 'SelectorList' ) {
 					return;
 				}
 
 				// Go through all selectors, filtering out unwanted ones.
-				rule.prelude.children.forEach((child) => {
-					const selector = csstree.generate(child);
+				rule.prelude.children.forEach( child => {
+					const selector = csstree.generate( child );
 
-					if (!excludedSelectors.some((s) => s.test(selector))) {
-						callback(selector);
+					if ( ! excludedSelectors.some( s => s.test( selector ) ) ) {
+						callback( selector );
 					}
-				});
+				} );
 			},
-		});
+		} );
 	}
 
 	/**
 	 * Remove any selectors not listed in the criticalSelectors set, deleting any
 	 * rules that no longer have any selectors in their prelude.
 	 *
-	 * @param {Set<string>} criticalSelectors - Critical selectors to keep.
-	 * @param               criticalSelector
+	 * @param  criticalSelector
 	 */
-	pruneNonCriticalSelectors(criticalSelector: Set<string>): void {
-		csstree.walk(this.ast, {
-			visit: "Rule",
-			enter(rule, item, list) {
+	pruneNonCriticalSelectors( criticalSelector: Set< string > ): void {
+		csstree.walk( this.ast, {
+			visit: 'Rule',
+			enter( rule, item, list ) {
 				// Ignore rules inside @keyframes... until later.
-				if (
-					this.atrule &&
-					csstree.keyword(this.atrule.name).basename === "keyframes"
-				) {
+				if ( this.atrule && csstree.keyword( this.atrule.name ).basename === 'keyframes' ) {
 					return;
 				}
 
 				// Remove invalid rules.
-				if (rule.prelude.type !== "SelectorList") {
-					list.remove(item);
+				if ( rule.prelude.type !== 'SelectorList' ) {
+					list.remove( item );
 					return;
 				}
 
 				// Always include any rule that uses the grid-area property.
 				if (
 					rule.block.children.some(
-						(propertyNode) =>
-							isDeclaration(propertyNode) &&
-							propertyNode.property === "grid-area"
+						propertyNode => isDeclaration( propertyNode ) && propertyNode.property === 'grid-area'
 					)
 				) {
 					return;
 				}
 
 				// Prune any selectors that aren't used.
-				rule.prelude.children = rule.prelude.children.filter((selector) => {
+				rule.prelude.children = rule.prelude.children.filter( selector => {
 					// Prune selectors marked to always remove.
-					if (
-						excludedSelectors.some((s) => s.test(csstree.generate(selector)))
-					) {
+					if ( excludedSelectors.some( s => s.test( csstree.generate( selector ) ) ) ) {
 						return false;
 					}
 
-					const selectorText = csstree.generate(selector);
-					return criticalSelector.has(selectorText);
-				});
+					const selectorText = csstree.generate( selector );
+					return criticalSelector.has( selectorText );
+				} );
 
 				// If the selector list is empty, prune the whole rule.
-				if (hasEmptyChildList(rule.prelude)) {
-					list.remove(item);
+				if ( hasEmptyChildList( rule.prelude ) ) {
+					list.remove( item );
 				}
 			},
-		});
+		} );
 	}
 
 	/**
 	 * Remove any Base64 embedded content which exceeds maxBase64Length.
 	 */
 	pruneLargeBase64Embeds(): void {
-		csstree.walk(this.ast, {
-			visit: "Declaration",
-			enter: (declaration, item, list) => {
+		csstree.walk( this.ast, {
+			visit: 'Declaration',
+			enter: ( declaration, item, list ) => {
 				let tooLong = false;
 
-				csstree.walk(declaration, {
-					visit: "Url",
-					enter(url) {
+				csstree.walk( declaration, {
+					visit: 'Url',
+					enter( url ) {
 						const value = url.value.value;
-						if (base64Pattern.test(value) && value.length > maxBase64Length) {
+						if ( base64Pattern.test( value ) && value.length > maxBase64Length ) {
 							tooLong = true;
 						}
 					},
-				});
+				} );
 
-				if (tooLong) {
-					list.remove(item);
+				if ( tooLong ) {
+					list.remove( item );
 				}
 			},
-		});
+		} );
 	}
 
 	/**
 	 * Remove any properties that match the regular expressions in the excludedProperties constant.
 	 */
 	pruneExcludedProperties(): void {
-		csstree.walk(this.ast, {
-			visit: "Declaration",
-			enter: (declaration, item, list) => {
-				if (declaration.property) {
-					const property = csstree.property(declaration.property).name;
-					if (excludedProperties.some((e) => e.test(property))) {
-						list.remove(item);
+		csstree.walk( this.ast, {
+			visit: 'Declaration',
+			enter: ( declaration, item, list ) => {
+				if ( declaration.property ) {
+					const property = csstree.property( declaration.property ).name;
+					if ( excludedProperties.some( e => e.test( property ) ) ) {
+						list.remove( item );
 					}
 				}
 			},
-		});
+		} );
 	}
 
 	/**
@@ -432,50 +412,48 @@ export class StyleAST {
 	 *
 	 * @param {Set< string >} fontWhitelist - Whitelisted font.
 	 */
-	pruneNonCriticalFonts(fontWhitelist: Set<string>): void {
-		csstree.walk(this.ast, {
-			visit: "Atrule",
-			enter: (atrule, item, list) => {
+	pruneNonCriticalFonts( fontWhitelist: Set< string > ): void {
+		csstree.walk( this.ast, {
+			visit: 'Atrule',
+			enter: ( atrule, item, list ) => {
 				// Skip rules that aren't @font-face...
-				if (csstree.keyword(atrule.name).basename !== "font-face") {
+				if ( csstree.keyword( atrule.name ).basename !== 'font-face' ) {
 					return;
 				}
 
 				// Find src and font-family.
-				const properties: { [key: string]: string[] } = {};
-				csstree.walk(atrule, {
-					visit: "Declaration",
-					enter: (declaration, decItem, decList) => {
-						const property = csstree.property(declaration.property).name;
+				const properties: { [ key: string ]: string[] } = {};
+				csstree.walk( atrule, {
+					visit: 'Declaration',
+					enter: ( declaration, decItem, decList ) => {
+						const property = csstree.property( declaration.property ).name;
 						if (
-							["src", "font-family"].includes(property) &&
-							"children" in declaration.value
+							[ 'src', 'font-family' ].includes( property ) &&
+							'children' in declaration.value
 						) {
 							const values = declaration.value.children.toArray();
-							properties[property] = values.map(StyleAST.readValue);
+							properties[ property ] = values.map( StyleAST.readValue );
 						}
 
 						// Prune out src from result.
-						if (property === "src") {
-							decList.remove(decItem);
+						if ( property === 'src' ) {
+							decList.remove( decItem );
 						}
 					},
-				});
+				} );
 
 				// Remove font-face rules without a src and font-family.
-				if (!properties.src || !properties["font-family"]) {
-					list.remove(item);
+				if ( ! properties.src || ! properties[ 'font-family' ] ) {
+					list.remove( item );
 					return;
 				}
 
 				// Prune if none of the font-family values are in the whitelist.
-				if (
-					!properties["font-family"].some((family) => fontWhitelist.has(family))
-				) {
-					list.remove(item);
+				if ( ! properties[ 'font-family' ].some( family => fontWhitelist.has( family ) ) ) {
+					list.remove( item );
 				}
 			},
-		});
+		} );
 	}
 
 	/**
@@ -486,12 +464,12 @@ export class StyleAST {
 	ruleCount(): number {
 		let rules = 0;
 
-		csstree.walk(this.ast, {
-			visit: "Rule",
+		csstree.walk( this.ast, {
+			visit: 'Rule',
 			enter: () => {
 				rules++;
 			},
-		});
+		} );
 
 		return rules;
 	}
@@ -501,29 +479,29 @@ export class StyleAST {
 	 *
 	 * @return {Set<string>} Set of used fonts.
 	 */
-	getUsedFontFamilies(): Set<string> {
-		const fontFamilies = new Set<string>();
+	getUsedFontFamilies(): Set< string > {
+		const fontFamilies = new Set< string >();
 
-		csstree.walk(this.ast, {
-			visit: "Declaration",
-			enter(node) {
+		csstree.walk( this.ast, {
+			visit: 'Declaration',
+			enter( node ) {
 				// Ignore declarations not inside rules.
-				if (!this.rule) {
+				if ( ! this.rule ) {
 					return;
 				}
 
+				// Pull the lexer out of csstree. Note: the types don't include
+				// this, so we have to hack it with any :(
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				const lexer = ( csstree as any ).lexer;
+
 				// Gather family-name values.
-				const lexer = (csstree as any).lexer;
-				const frags = lexer.findDeclarationValueFragments(
-					node,
-					"Type",
-					"family-name"
-				);
-				const nodes = frags.map((frag) => frag.nodes.toArray()).flat();
-				const names = nodes.map(StyleAST.readValue) as string[];
-				names.forEach((name) => fontFamilies.add(name));
+				const frags = lexer.findDeclarationValueFragments( node, 'Type', 'family-name' );
+				const nodes = frags.map( frag => frag.nodes.toArray() ).flat();
+				const names = nodes.map( StyleAST.readValue ) as string[];
+				names.forEach( name => fontFamilies.add( name ) );
 			},
-		});
+		} );
 
 		return fontFamilies;
 	}
@@ -534,16 +512,16 @@ export class StyleAST {
 	 *
 	 * @param {Object} node - AST node.
 	 */
-	static readValue(node: csstree.CssNode): string {
-		if (node.type === "String" && stringPattern.test(node.value)) {
-			return node.value.substr(1, node.value.length - 2);
-		} else if (node.type === "Identifier") {
+	static readValue( node: csstree.CssNode ): string {
+		if ( node.type === 'String' && stringPattern.test( node.value ) ) {
+			return node.value.substr( 1, node.value.length - 2 );
+		} else if ( node.type === 'Identifier' ) {
 			return node.name;
-		} else if ("value" in node) {
+		} else if ( 'value' in node ) {
 			return node.value as string;
 		}
 
-		return "";
+		return '';
 	}
 
 	/**
@@ -553,42 +531,42 @@ export class StyleAST {
 	 *
 	 * @return {boolean} true if the media query is relevant to screens.
 	 */
-	static isUsefulMediaQuery(mediaQueryNode: csstree.MediaQuery): boolean {
+	static isUsefulMediaQuery( mediaQueryNode: csstree.MediaQuery ): boolean {
 		// Find media types.
 		let lastIdentifierNot = false;
 		const mediaTypes = {};
-		csstree.walk(mediaQueryNode, {
-			visit: "Identifier",
-			enter: (node) => {
-				const identifier = csstree.keyword(node.name).name;
+		csstree.walk( mediaQueryNode, {
+			visit: 'Identifier',
+			enter: node => {
+				const identifier = csstree.keyword( node.name ).name;
 
-				if (identifier === "not") {
+				if ( identifier === 'not' ) {
 					lastIdentifierNot = true;
 					return;
 				}
 
-				if (validMediaTypes.includes(identifier)) {
-					mediaTypes[identifier] = !lastIdentifierNot;
+				if ( validMediaTypes.includes( identifier ) ) {
+					mediaTypes[ identifier ] = ! lastIdentifierNot;
 				}
 
 				lastIdentifierNot = false;
 			},
-		});
+		} );
 
 		// If no media types specified, assume screen.
-		if (Object.keys(mediaTypes).length === 0) {
+		if ( Object.keys( mediaTypes ).length === 0 ) {
 			return true;
 		}
 
 		// If 'screen' or 'all' explicitly specified, use those (preference screen).
-		for (const mediaType of ["screen", "all"]) {
-			if (Object.prototype.hasOwnProperty.call(mediaTypes, mediaType)) {
-				return mediaTypes[mediaType];
+		for ( const mediaType of [ 'screen', 'all' ] ) {
+			if ( Object.prototype.hasOwnProperty.call( mediaTypes, mediaType ) ) {
+				return mediaTypes[ mediaType ];
 			}
 		}
 
 		// If any other media type specified, only true if 'not'. e.g.: 'not print'.
-		return Object.values(mediaTypes).some((value) => !value);
+		return Object.values( mediaTypes ).some( value => ! value );
 	}
 
 	/**
@@ -597,7 +575,7 @@ export class StyleAST {
 	 * @return {string} this AST represented in CSS.
 	 */
 	toCSS(): string {
-		return csstree.generate(this.ast);
+		return csstree.generate( this.ast );
 	}
 
 	/**
@@ -607,16 +585,16 @@ export class StyleAST {
 	 *
 	 * @return {StyleAST} new parse AST based on the CSS.
 	 */
-	static parse(css: string): StyleAST {
+	static parse( css: string ): StyleAST {
 		const errors: Error[] = [];
-		const ast = csstree.parse(css, {
+		const ast = csstree.parse( css, {
 			parseCustomProperty: true,
 			positions: true,
-			onParseError: (err) => {
-				errors.push(err);
+			onParseError: err => {
+				errors.push( err );
 			},
-		});
+		} );
 
-		return new StyleAST(css, ast, errors);
+		return new StyleAST( css, ast, errors );
 	}
 }

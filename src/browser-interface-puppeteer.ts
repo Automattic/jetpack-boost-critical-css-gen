@@ -1,32 +1,26 @@
-import { Viewport } from "./types";
-import { BrowserInterface } from "./browser-interface";
-
-// Avoid actually important Puppeteer; caller can use it if they want.
-// Just define enough of an interface to satisfy the caller.
-interface Page {
-	setViewport: (viewport: Viewport) => Promise<void>;
-	evaluate: (fn: Function | string, args?: any) => Promise<any>;
-}
+import { Viewport } from './types';
+import { BrowserInterface, BrowserRunnable } from './browser-interface';
+import type { Page } from 'puppeteer';
 
 export class BrowserInterfacePuppeteer extends BrowserInterface {
-	constructor(private pages: { [url: string]: Page }) {
+	constructor( private pages: { [ url: string ]: Page } ) {
 		super();
 	}
 
-	async runInPage<ReturnType>(
+	async runInPage< ReturnType >(
 		pageUrl: string,
 		viewport: Viewport | null,
-		method: Function,
-		...args: any[]
-	): Promise<ReturnType> {
-		const page = this.pages[pageUrl];
+		method: BrowserRunnable< ReturnType >,
+		...args: unknown[]
+	): Promise< ReturnType > {
+		const page = this.pages[ pageUrl ];
 
-		if (!page) {
-			throw new Error(`Puppeteer interface does not include URL ${pageUrl}`);
+		if ( ! page ) {
+			throw new Error( `Puppeteer interface does not include URL ${ pageUrl }` );
 		}
 
-		if (viewport) {
-			await page.setViewport(viewport);
+		if ( viewport ) {
+			await page.setViewport( viewport );
 		}
 
 		// Get the inner window to pass to inner method.
@@ -35,7 +29,7 @@ export class BrowserInterfacePuppeteer extends BrowserInterface {
 		// The inner window in Puppeteer is the directly accessible main window object.
 		// The evaluating method does not need a separate window object.
 		// Call inner method within the Puppeteer context.
-		return page.evaluate(method, { innerWindow: null, args });
+		return page.evaluate( method, { innerWindow: null, args } );
 	}
 
 	/**
@@ -46,8 +40,11 @@ export class BrowserInterfacePuppeteer extends BrowserInterface {
 	 * @param {Object} options Fetch options.
 	 * @param {string} _role   'css' or 'html' indicating what kind of thing is being fetched.
 	 */
-	async fetch(url: string, options: RequestInit, _role: "css" | "html") {
-		const nodeFetch = require("node-fetch");
-		return nodeFetch(url, options);
+	async fetch( url: string, options: RequestInit, _role: 'css' | 'html' ) {
+		// Special case: only import node-fetch if used, to avoid unnecessary requirements.
+		// eslint-disable-next-line @typescript-eslint/no-var-requires
+		const fetch = require( 'node-fetch' );
+
+		return fetch( url, options );
 	}
 }
