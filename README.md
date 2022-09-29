@@ -17,8 +17,8 @@ Where `options` is an object with the following keys:
 - `progressCallback` - A callback to receive progress information, with two arguments; `step` and `stepCount`. Each are integers; progress percentage can be expressed in the form `percentage = step * 100 / stepCount`.
 - `filters` - An object describing a filter to run each property and/or atRule through for inclusion.
 
-Example usage:
-```
+Example usage with an IFrame:
+```javascript
   const { BrowserInterfaceIframe, generateCriticalCSS } = require( 'jetpack-boost-critical-css-gen' );
   
   const [css, warnings] = await generateCriticalCSS( {
@@ -32,4 +32,39 @@ Example usage:
       },
     },
   } );
+```
+
+Example usage in TypeScript with Playwright:
+```typescript
+import { chromium, Page } from 'playwright';
+import { BrowserInterfacePlaywright, generateCriticalCSS } from 'jetpack-boost-critical-css-gen';
+
+async function playwrightGenerator( urls: string[] ): Promise< string > {
+	const browser = await chromium.launch();
+	const context = await browser.newContext();
+
+	// Open playwright pages for each URL.
+	const pages: { [ url: string ]: Page } = {};
+	for ( const url of urls ) {
+		pages[ url ] = await context.newPage();
+		await pages[ url ].goto( url );
+	}
+
+	// Call the Critical CSS generator.
+	const [ css, warnings ] = await generateCriticalCSS( {
+		urls,
+		viewports: [
+			{ width: 640, height: 480 },
+			{ width: 1024, height: 768 },
+			{ width: 1280, height: 1024 },
+		],
+		browserInterface: new BrowserInterfacePlaywright( pages ),
+	} );
+
+	if ( warnings.length ) {
+		console.warn( warnings );
+	}
+
+	return css;
+}
 ```
