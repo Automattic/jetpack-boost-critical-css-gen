@@ -1,4 +1,4 @@
-import * as csstree from 'css-tree';
+import csstree from 'css-tree';
 import { AtRuleFilter, FilterSpec, PropertiesFilter } from './types';
 
 const validMediaTypes = [ 'all', 'print', 'screen', 'speech' ];
