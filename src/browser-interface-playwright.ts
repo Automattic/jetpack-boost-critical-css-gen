@@ -1,6 +1,10 @@
 import { Viewport } from './types';
 import { BrowserInterface, BrowserRunnable, FetchOptions } from './browser-interface';
-import type { Page } from 'playwright';
+
+interface Page {
+	setViewportSize( viewport: Viewport ): Promise<void>;
+	evaluate( method: string | Function, arg: Record< string, unknown > );
+};
 
 export class BrowserInterfacePlaywright extends BrowserInterface {
 	constructor( private pages: { [ url: string ]: Page } ) {
