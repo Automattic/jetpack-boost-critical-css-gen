@@ -1,4 +1,4 @@
-The files in this project are Copyright &copy; Automattic Inc, 2021, and licensed under the The GPLv2 (or later) from the [Free Software Foundation](http://www.fsf.org/).  Its text follows.
+The files in this project are Copyright &copy; Automattic Inc, 2021, and licensed under the The GPLv2 (or later) from the [Free Software Foundation](http://www.fsf.org/). Its text follows.
 
 Version 2, June 1991
 
@@ -26,7 +26,6 @@ Finally, any free program is threatened constantly by software patents. We wish 
 The precise terms and conditions for copying, distribution and modification follow.
 
 ### GNU General Public License Terms and Conditions for Copying, Distribution, and Modification
-
 
 <ol start="0">
 

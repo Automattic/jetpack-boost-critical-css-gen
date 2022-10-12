@@ -1,0 +1,13 @@
+{
+	"include": ["src/**/*"],
+	"exclude": ["node_modules/**/*"],
+	"compilerOptions": {
+		"outDir": "./lib",
+		"target": "ES2021",
+		"module": "esnext",
+		"sourceMap": true,
+		"allowJs": false,
+		"moduleResolution": "node",
+		"allowSyntheticDefaultImports": true
+	}
+}

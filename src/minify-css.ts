@@ -1,4 +1,4 @@
-const CleanCSS = require( 'clean-css' );
+import CleanCSS from 'clean-css';
 
 /**
  * Minifies the given CSS, returning it as a string. Any errors that occur are returned
@@ -10,7 +10,7 @@ const CleanCSS = require( 'clean-css' );
  *
  *                     return {[ string, string[] ]} - Minified CSS and a list of errors returned.
  */
-function minifyCss( css ) {
+export function minifyCss( css: string ): [ string, string[] ] {
 	const result = new CleanCSS().minify( css );
 
 	if ( ! result.styles ) {
@@ -19,5 +19,3 @@ function minifyCss( css ) {
 
 	return [ result.styles, result.errors ];
 }
-
-module.exports = { minifyCss };

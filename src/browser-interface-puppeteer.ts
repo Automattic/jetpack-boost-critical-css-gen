@@ -1,19 +1,22 @@
-const BrowserInterface = require( './browser-interface' );
+import { Viewport } from './types';
+import { BrowserInterface, BrowserRunnable, FetchOptions } from './browser-interface';
+import type { Page } from 'puppeteer';
 
-class BrowserInterfacePuppeteer extends BrowserInterface {
-	constructor( pages ) {
+export class BrowserInterfacePuppeteer extends BrowserInterface {
+	constructor( private pages: { [ url: string ]: Page } ) {
 		super();
-
-		this.pages = pages;
 	}
 
-	async runInPage( pageUrl, viewport, method, ...args ) {
+	async runInPage< ReturnType >(
+		pageUrl: string,
+		viewport: Viewport | null,
+		method: BrowserRunnable< ReturnType >,
+		...args: unknown[]
+	): Promise< ReturnType > {
 		const page = this.pages[ pageUrl ];
 
 		if ( ! page ) {
-			throw new Error(
-				`Puppeteer interface does not include URL ${ pageUrl }`
-			);
+			throw new Error( `Puppeteer interface does not include URL ${ pageUrl }` );
 		}
 
 		if ( viewport ) {
@@ -37,10 +40,9 @@ class BrowserInterfacePuppeteer extends BrowserInterface {
 	 * @param {Object} options Fetch options.
 	 * @param {string} _role   'css' or 'html' indicating what kind of thing is being fetched.
 	 */
-	async fetch( url, options, _role ) {
-		const nodeFetch = require( 'node-fetch' );
-		return nodeFetch( url, options );
+	async fetch( url: string, options: FetchOptions, _role: 'css' | 'html' ) {
+		const nodeFetch = await import( 'node-fetch' );
+
+		return nodeFetch.default( url, options );
 	}
 }
-
-module.exports = BrowserInterfacePuppeteer;

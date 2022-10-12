@@ -1,51 +1,69 @@
-class BrowserInterface {
+import type { Viewport } from './types';
+
+export type BrowserRunnable< ReturnType > = ( arg: unknown ) => ReturnType;
+
+// Wrappers around parts of fetch that we rely on, to allow multiple stand-in implementations.
+export interface FetchOptions {
+	method?: 'POST' | 'GET';
+}
+export interface FetchResponse {
+	ok: boolean;
+	status: number;
+	text: () => Promise< string >;
+}
+
+export class BrowserInterface {
+	private urlErrors: { [ url: string ]: Error };
+
 	constructor() {
 		this.urlErrors = {};
 	}
 
-	trackUrlError( url, error ) {
+	trackUrlError( url: string, error: Error ) {
 		this.urlErrors[ url ] = error;
 	}
 
-	filterValidUrls( urls ) {
-		return urls.filter( ( url ) => ! this.urlErrors[ url ] );
+	filterValidUrls( urls: string[] ): string[] {
+		return urls.filter( url => ! this.urlErrors[ url ] );
 	}
 
-	// eslint-disable-next-line no-unused-vars
-	async runInPage( pageUrl, viewport, method, ...args ) {
-		throw new Error(
-			'Undefined interface method: BrowserInterface.runInPage()'
-		);
+	async runInPage< ReturnType >(
+		_pageUrl: string,
+		_viewport: Viewport | null,
+		_method: BrowserRunnable< ReturnType >,
+		..._args: unknown[]
+	): Promise< ReturnType > {
+		throw new Error( 'Undefined interface method: BrowserInterface.runInPage()' );
 	}
 
 	/**
 	 * Context-specific wrapper for fetch; uses window.fetch in browsers, or a
 	 * node library when using Puppeteer.
 	 *
-	 * @param {string} _url     URL to fetch.
-	 * @param {Object} _options Fetch options.
-	 * @param {string} _role    'css' or 'html' indicating what kind of thing is being fetched.
+	 * @param  _url
+	 * @param  _options
+	 * @param  _role
 	 */
-	async fetch( _url, _options, _role ) {
-		throw new Error(
-			'Undefined interface method: BrowserInterface.fetch()'
-		);
+	async fetch(
+		_url: string,
+		_options: FetchOptions,
+		_role: 'css' | 'html'
+	): Promise< FetchResponse > {
+		throw new Error( 'Undefined interface method: BrowserInterface.fetch()' );
 	}
 
-	async cleanup() {}
+	async cleanup() {
+		// No-op.
+	}
 
-	async getCssIncludes( pageUrl ) {
-		return await this.runInPage(
-			pageUrl,
-			null,
-			BrowserInterface.innerGetCssIncludes
-		);
+	async getCssIncludes( pageUrl: string ): Promise< { [ url: string ]: { media: string } } > {
+		return await this.runInPage( pageUrl, null, BrowserInterface.innerGetCssIncludes );
 	}
 
 	static innerGetCssIncludes( { innerWindow } ) {
 		innerWindow = null === innerWindow ? window : innerWindow;
 		return [ ...innerWindow.document.getElementsByTagName( 'link' ) ]
-			.filter( ( link ) => link.rel === 'stylesheet' )
+			.filter( link => link.rel === 'stylesheet' )
 			.reduce( ( set, link ) => {
 				set[ link.href ] = {
 					media: link.media || null,
@@ -65,13 +83,11 @@ class BrowserInterface {
 	 * @param {Object[]} wrappedArgs.args        - Array of arguments.
 	 *                                           {Object} wrappedArgs.args[selectors] - Map containing selectors (object keys), and simplified versions for easy matching (values).
 	 */
-	static innerFindMatchingSelectors( { innerWindow, args: [ selectors ] } ) {
+	public static innerFindMatchingSelectors( { innerWindow, args: [ selectors ] } ) {
 		innerWindow = null === innerWindow ? window : innerWindow;
-		return Object.keys( selectors ).filter( ( selector ) => {
+		return Object.keys( selectors ).filter( selector => {
 			try {
-				return !! innerWindow.document.querySelector(
-					selectors[ selector ]
-				);
+				return !! innerWindow.document.querySelector( selectors[ selector ] );
 			} catch ( err ) {
 				// Ignore invalid selectors.
 				return false;
@@ -90,10 +106,10 @@ class BrowserInterface {
 	 *                                           {Object} wrappedArgs.args[selectors] - Map containing selectors (object keys), and simplified versions for easy matching (values).
 	 *                                           {string[]} wrappedArgs.args[pageSelectors] - String array containing selectors that appear anywhere on this page (as returned by innerFindMatchingSelectors) - should be a subset of keys in selectors.
 	 */
-	static innerFindAboveFoldSelectors( {
+	public static innerFindAboveFoldSelectors( {
 		innerWindow,
 		args: [ selectors, pageSelectors ],
-	} ) {
+	} ): string[] {
 		/**
 		 * Inner helper function used inside browser / iframe to check if the given
 		 * element is "above the fold".
@@ -101,7 +117,7 @@ class BrowserInterface {
 		 * @param {HTMLElement} element - Element to check.
 		 */
 		innerWindow = null === innerWindow ? window : innerWindow;
-		const isAboveFold = ( element ) => {
+		const isAboveFold = element => {
 			const originalClearStyle = element.style.clear || '';
 			element.style.clear = 'none';
 
@@ -112,14 +128,12 @@ class BrowserInterface {
 			return rect.top < innerWindow.innerHeight;
 		};
 
-		return pageSelectors.filter( ( s ) => {
+		return pageSelectors.filter( s => {
 			if ( '*' === selectors[ s ] ) {
 				return true;
 			}
 
-			const matches = innerWindow.document.querySelectorAll(
-				selectors[ s ]
-			);
+			const matches = innerWindow.document.querySelectorAll( selectors[ s ] );
 			for ( const match of matches ) {
 				if ( isAboveFold( match ) ) {
 					return true;
@@ -130,5 +144,3 @@ class BrowserInterface {
 		} );
 	}
 }
-
-module.exports = BrowserInterface;
