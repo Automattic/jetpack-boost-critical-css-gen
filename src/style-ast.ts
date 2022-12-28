@@ -1,4 +1,4 @@
-import csstree from 'css-tree';
+import * as csstree from 'css-tree';
 import { AtRuleFilter, FilterSpec, PropertiesFilter } from './types';
 
 const validMediaTypes = [ 'all', 'print', 'screen', 'speech' ];
@@ -21,7 +21,7 @@ function isDeclaration( node: csstree.CssNode ): node is csstree.Declaration {
 
 function hasEmptyChildList( node: csstree.CssNode ): boolean {
 	if ( 'children' in node && node.children instanceof csstree.List ) {
-		return node.children.isEmpty();
+		return node.children.isEmpty;
 	}
 
 	return false;
@@ -44,13 +44,12 @@ export class StyleAST {
 		csstree.walk( this.ast, {
 			visit: 'Url',
 			enter: url => {
-				if ( url.value && url.value.type === 'String' ) {
-					const value = StyleAST.readValue( url.value );
+				if ( url.value ) {
+					const value = StyleAST.readValue( url );
 					const absolute = new URL( value, base ).toString();
 
 					if ( absolute !== value ) {
-						// URLs are encoded; " will not appear in it, so this is safe.
-						url.value.value = '"' + absolute + '"';
+						url.value = absolute;
 					}
 				}
 			},
@@ -373,7 +372,7 @@ export class StyleAST {
 				csstree.walk( declaration, {
 					visit: 'Url',
 					enter( url ) {
-						const value = url.value.value;
+						const value = url.value;
 						if ( base64Pattern.test( value ) && value.length > maxBase64Length ) {
 							tooLong = true;
 						}
