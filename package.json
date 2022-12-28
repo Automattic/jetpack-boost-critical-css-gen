@@ -26,7 +26,6 @@
 		"@rollup/plugin-node-resolve": "^13.3.0",
 		"@rollup/plugin-typescript": "^8.4.0",
 		"@types/clean-css": "^4.2.5",
-		"@types/css-tree": "^2.0.0",
 		"@types/node": "^18.7.12",
 		"@typescript-eslint/eslint-plugin": "^5.35.1",
 		"@wordpress/eslint-plugin": "^13.0.0",
