@@ -2,9 +2,10 @@ import { Viewport } from './types';
 import { BrowserInterface, BrowserRunnable, FetchOptions } from './browser-interface';
 
 interface Page {
-	setViewportSize( viewport: Viewport ): Promise<void>;
+	setViewportSize( viewport: Viewport ): Promise< void >;
+	// eslint-disable-next-line @typescript-eslint/ban-types
 	evaluate( method: string | Function, arg: Record< string, unknown > );
-};
+}
 
 export class BrowserInterfacePlaywright extends BrowserInterface {
 	constructor( private pages: { [ url: string ]: Page } ) {
