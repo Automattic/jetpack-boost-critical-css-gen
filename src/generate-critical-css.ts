@@ -44,6 +44,9 @@ async function collateCssFiles(
 
 			await cssFiles.addMultiple( url, absoluteIncludes );
 
+			const internalStyles = await browserInterface.getInternalStyles( url );
+			await cssFiles.addInternalStyles( url, internalStyles );
+
 			// Abort early if we hit the threshold of success urls.
 			successes++;
 			if ( successes >= successUrlsThreshold ) {
