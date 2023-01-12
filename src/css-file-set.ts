@@ -22,6 +22,7 @@ export class CSSFileSet {
 	private knownUrls: { [ url: string ]: CSSFile | Error };
 	private cssFiles: CSSFile[];
 	private errors: Error[];
+	private internalStyles: { [ url: string ]: StyleAST } = {};
 
 	constructor( private browserInterface: BrowserInterface ) {
 		this.knownUrls = {};
@@ -39,6 +40,10 @@ export class CSSFileSet {
 		await Promise.all(
 			Object.keys( cssIncludes ).map( url => this.add( page, url, cssIncludes[ url ] ) )
 		);
+	}
+
+	async addInternalStyles( page: string, internalStyles: string ) {
+		this.internalStyles[ page ] = StyleAST.parse( internalStyles );
 	}
 
 	/**
@@ -140,6 +145,12 @@ export class CSSFileSet {
 			return file.ast.pruned( usefulSelectors );
 		} );
 
+		const internallyUsedVariables = new Set< string >();
+		Object.values( this.internalStyles ).reduce( ( set, ast ) => {
+			ast.getUsedVariables().forEach( v => set.add( v ) );
+			return set;
+		}, internallyUsedVariables );
+
 		// Repeatedly prune unused variables (up to maxVarPruneIterations), to catch vars which are
 		// only used to define other vars which aren't used.
 		let prevUsedVariables;
@@ -157,7 +168,9 @@ export class CSSFileSet {
 
 			// Prune unused variables, keep a sum of pruned variables.
 			const prunedCount = asts.reduce( ( sum, ast ) => {
-				sum += ast.pruneUnusedVariables( usedVariables );
+				sum += ast.pruneUnusedVariables(
+					new Set( [ ...usedVariables, ...internallyUsedVariables ] )
+				);
 				return sum;
 			}, 0 );
 

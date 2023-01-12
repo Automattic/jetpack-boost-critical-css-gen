@@ -73,6 +73,26 @@ export class BrowserInterface {
 			}, {} );
 	}
 
+	async getInternalStyles( pageUrl: string ): Promise< string > {
+		return await this.runInPage( pageUrl, null, BrowserInterface.innerGetInternalStyles );
+	}
+
+	/**
+	 * Get all internal styles as a combined string from the window.
+	 *
+	 * @param {Object} wrappedArgs
+	 * @param {Window} wrappedArgs.innerWindow - Window inside the browser interface.
+	 */
+	static innerGetInternalStyles( { innerWindow } ): string {
+		innerWindow = null === innerWindow ? window : innerWindow;
+		const styleElements = Array.from( innerWindow.document.getElementsByTagName( 'style' ) );
+
+		return styleElements.reduce( ( styles: string, style: HTMLStyleElement ) => {
+			styles += style.innerText;
+			return styles;
+		}, '' ) as string;
+	}
+
 	/**
 	 * Given a set of CSS selectors (as object keys), along with "simplified" versions
 	 * for easy querySelector calling (values), return an array of selectors which match
