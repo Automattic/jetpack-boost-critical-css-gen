@@ -80,8 +80,8 @@ export class BrowserInterface {
 	/**
 	 * Get all internal styles as a combined string from the window.
 	 *
-	 * @param  root0
-	 * @param  root0.innerWindow
+	 * @param {Object} wrappedArgs
+	 * @param {Window} wrappedArgs.innerWindow - Window inside the browser interface.
 	 */
 	static innerGetInternalStyles( { innerWindow } ): string {
 		innerWindow = null === innerWindow ? window : innerWindow;
