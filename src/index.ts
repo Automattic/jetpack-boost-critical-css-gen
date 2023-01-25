@@ -6,4 +6,4 @@ export { generateCriticalCSS } from './generate-critical-css';
 
 export * from './errors';
 
-export const version = '0.0.6';
+export const version = '0.0.5';
