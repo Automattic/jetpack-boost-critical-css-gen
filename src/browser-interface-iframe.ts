@@ -183,6 +183,7 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 						);
 					}
 
+					this.currentUrl = rawUrl;
 					resolve();
 				} catch ( err ) {
 					reject( err );
