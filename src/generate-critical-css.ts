@@ -36,8 +36,12 @@ async function collateCssFiles(
 			// Convert relative URLs to absolute.
 			const relativeUrls = Object.keys( cssIncludes );
 			const absoluteIncludes = relativeUrls.reduce( ( set, relative ) => {
-				const absolute = new URL( relative, url ).toString();
-				set[ absolute ] = cssIncludes[ relative ];
+				try {
+					const absolute = new URL( relative, url ).toString();
+					set[ absolute ] = cssIncludes[ relative ];
+				} catch ( err ) {
+					// Ignore invalid URLs.
+				}
 
 				return set;
 			}, {} as typeof cssIncludes );
