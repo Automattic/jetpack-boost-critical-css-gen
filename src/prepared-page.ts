@@ -1,9 +1,12 @@
+import { Page } from 'playwright';
+import { PreparedPage } from './types';
+
 /**
  * Modify playwright or puppeteer page object to add additional properties
  *
- * @param page playwright page object
+ * @param page page object
  */
-export function preparePage( page ) {
+export function getPreparedPage( page ): PreparedPage< Page > {
 	// Initialize a flag to track whether the event listener is attached
 	if ( ! page._statusCodeListenerAttached ) {
 		page._statusCodeListenerAttached = true;
@@ -21,4 +24,6 @@ export function preparePage( page ) {
 
 		return await page.goto.call( this, url, options );
 	};
+
+	return page;
 }

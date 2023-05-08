@@ -25,8 +25,9 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 
 		// Bail early if the page returned a non-200 status code.
 		if ( page._statusCode && ! this.isOkStatus( page._statusCode ) ) {
-			this.trackUrlError( pageUrl, new Error( `Page returned status code ${ page._statusCode }` ) );
-			return;
+			const error = new Error( `Page returned status code ${ page._statusCode }` );
+			this.trackUrlError( pageUrl, error );
+			throw error;
 		}
 
 		if ( ! page ) {
