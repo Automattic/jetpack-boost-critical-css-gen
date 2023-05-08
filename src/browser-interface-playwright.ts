@@ -2,6 +2,9 @@ import { Viewport } from './types';
 import { BrowserInterface, BrowserRunnable, FetchOptions } from './browser-interface';
 
 interface Page {
+	// Set by running preparePage() on the page object.
+	_statusCode?: null | number;
+
 	setViewportSize( viewport: Viewport ): Promise< void >;
 	// eslint-disable-next-line @typescript-eslint/ban-types
 	evaluate( method: string | Function, arg: Record< string, unknown > );
@@ -19,6 +22,12 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 		...args: unknown[]
 	): Promise< ReturnType > {
 		const page = this.pages[ pageUrl ];
+
+		// Bail early if the page returned a non-200 status code.
+		if ( page._statusCode && ! this.isOkStatus( page._statusCode ) ) {
+			this.trackUrlError( pageUrl, new Error( `Page returned status code ${ page._statusCode }` ) );
+			return;
+		}
 
 		if ( ! page ) {
 			throw new Error( `Playwright interface does not include URL ${ pageUrl }` );
@@ -46,5 +55,9 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 		const nodeFetch = await import( 'node-fetch' );
 
 		return nodeFetch.default( url, options );
+	}
+
+	private isOkStatus( statusCode: number ) {
+		return statusCode >= 200 && statusCode < 300;
 	}
 }
