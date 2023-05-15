@@ -3,7 +3,6 @@ export { BrowserInterfacePlaywright } from './browser-interface-playwright';
 export { BrowserInterfaceIframe } from './browser-interface-iframe';
 export { BrowserInterface } from './browser-interface';
 export { generateCriticalCSS } from './generate-critical-css';
-export { getPreparedPage } from './prepared-page';
 
 export * from './errors';
 
