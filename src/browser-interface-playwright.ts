@@ -33,8 +33,8 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	 *
 	 * Take a browser instance and an array of urls to open in new tabs.
 	 *
-	 * @param {string[]}       urls    - Array of urls to open.
 	 * @param {BrowserContext} context - Browser context to use.
+	 * @param {string[]}       urls    - Array of urls to open.
 	 * @return {Promise< TabsByUrl >} Promise resolving to the browser context.
 	 */
 	private async openUrls( context: BrowserContext, urls: string[] ): Promise< void > {
@@ -49,8 +49,8 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	/**
 	 * Open url in a new tab in a given browserContext.
 	 *
-	 * @param {string}         url            - Url to open.
 	 * @param {BrowserContext} browserContext - Browser context to use.
+	 * @param {string}         url            - Url to open.
 	 * @return {Promise<Page>} Promise resolving to the page instance.
 	 */
 	private async newTab( browserContext: BrowserContext, url: string ): Promise< Tab > {
