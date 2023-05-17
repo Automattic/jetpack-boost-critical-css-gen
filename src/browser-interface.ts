@@ -40,9 +40,9 @@ export class BrowserInterface {
 	 * Context-specific wrapper for fetch; uses window.fetch in browsers, or a
 	 * node library when using Puppeteer.
 	 *
-	 * @param  _url
-	 * @param  _options
-	 * @param  _role
+	 * @param _url
+	 * @param _options
+	 * @param _role
 	 */
 	async fetch(
 		_url: string,
