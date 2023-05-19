@@ -12,11 +12,7 @@ async function main() {
 	console.log(urls);
 
 	const browser = await playwright.chromium.launch();
-	const testPages = {};
-	for (const url of urls) {
-		testPages[url] = await browser.newPage();
-		await testPages[url].goto(url);
-	}
+	const context = await browser.newContext();
 
 	console.log("Generating Critical CSS...");
 
@@ -27,7 +23,7 @@ async function main() {
 			{ width: 1200, height: 800 },
 			{ width: 1920, height: 1080 },
 		],
-		browserInterface: new BrowserInterfacePlaywright(testPages),
+		browserInterface: new BrowserInterfacePlaywright( context, urls ),
 	});
 
 	if (warnings.length) {
