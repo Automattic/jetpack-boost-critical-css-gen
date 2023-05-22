@@ -1,8 +1,8 @@
 {
 	"name": "jetpack-boost-critical-css-gen",
 	"main": "./lib/index.js",
-	"description": "Critical CSS Generator capable of running in-browser (iframes) or on server-side (NodeJS + Puppeteer). Built for use with Jetpack Boost.",
-	"version": "0.0.6",
+	"description": "Critical CSS Generator capable of running in-browser (iframes) or on server-side (NodeJS + playwright). Built for use with Jetpack Boost.",
+	"version": "0.0.9",
 	"license": "GPL-2.0-or-later",
 	"type": "module",
 	"scripts": {
