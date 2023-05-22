@@ -72,3 +72,13 @@ async function playwrightGenerator( urls: string[] ): Promise< string > {
 	return css;
 }
 ```
+
+# Releasing new version
+- Update the const `version` in `src/index.ts`
+- Update version number in `package.json`
+- Commit your changes
+- Create a new release in [jetpack-boost-critical-css-gen](https://github.com/Automattic/jetpack-boost-critical-css-gen/releases/new)
+	- Create a new tag in the release with the release version with the format `release-x.x.x`
+	- The release title will be the same as the tag.
+	- Click "Generate release notes" to automatically generate new release note.
+	- Publish
