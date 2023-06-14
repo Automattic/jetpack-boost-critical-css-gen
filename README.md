@@ -92,3 +92,5 @@ To get around this issue, we can use `yalc` and do some customization to make de
 - Go to your jetpack boost folder (`jetpack/projects/packages/boost`).
 - Run `yalc link jetpack-boost-critical-css-gen` to link from this the dependency to this library.
 - Now every time you want to sync changes, use `yalc push` from this library.
+
+See: pc9hqz-1NI-p2
