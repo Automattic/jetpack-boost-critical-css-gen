@@ -82,3 +82,15 @@ async function playwrightGenerator( urls: string[] ): Promise< string > {
 	- The release title will be the same as the tag.
 	- Click "Generate release notes" to automatically generate new release note.
 	- Publish
+
+# Local development
+Since we generally do development in docker, it is hard to test this with Jetpack Boost. `npm link` does not work in this case.
+To get around this issue, we can use `yalc` and do some customization to make development and testing easy. Here is what to do:
+
+- Run `npm -g yalc` to install yalc globally.
+- Run `yalc publish` from this package directory to publish this locally as a yalc repository.
+- Go to your jetpack boost folder (`jetpack/projects/packages/boost`).
+- Run `yalc link jetpack-boost-critical-css-gen` to link from this the dependency to this library.
+- Now every time you want to sync changes, use `yalc push` from this library.
+
+See: pc9hqz-1NI-p2
