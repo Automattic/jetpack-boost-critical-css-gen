@@ -153,7 +153,9 @@ export async function generateCriticalCSS( {
 	successRatio?: number;
 	maxPages?: number;
 } ): Promise< [ string, Error[] ] > {
-	const successUrlsThreshold = Math.ceil( urls.length * successRatio );
+	// Success threshold is calculated based on the success ratio of "the number of URLs provided", or "maxPages" whichever is lower.
+	// See 268-gh-Automattic/boost-cloud
+	const successUrlsThreshold = Math.ceil( Math.min( urls.length, maxPages ) * successRatio );
 
 	try {
 		progressCallback = progressCallback || noop;
