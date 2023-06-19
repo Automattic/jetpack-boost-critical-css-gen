@@ -167,7 +167,7 @@ describe("Iframe interface", () => {
 		await page.close();
 	});
 
-	it("Does not load more pages than the successRatio specifies", async () => {
+	it("Does not load more pages than the maxPages specifies", async () => {
 		const page = await browser.newPage();
 		await page.goto(testServer.getUrl());
 
@@ -187,6 +187,7 @@ describe("Iframe interface", () => {
 						},
 					}),
 					successRatio: 0.25,
+					maxPages: 1,
 				});
 
 				return [...result, pagesVerified];
