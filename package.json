@@ -58,6 +58,6 @@
 		"npm": "^8.18.0"
 	},
 	"overrides": {
-		"eslint-plugin-jsdoc": "^39.6.8"
+		"eslint-plugin-jsdoc": "^46.8.2"
 	}
 }
