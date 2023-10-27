@@ -315,7 +315,7 @@ export class StyleAST {
 	 * Remove any selectors not listed in the criticalSelectors set, deleting any
 	 * rules that no longer have any selectors in their prelude.
 	 *
-	 * @param  criticalSelector
+	 * @param criticalSelector
 	 */
 	pruneNonCriticalSelectors( criticalSelector: Set< string > ): void {
 		csstree.walk( this.ast, {
