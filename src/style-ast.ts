@@ -75,7 +75,7 @@ export class StyleAST {
 		const clone = new StyleAST( this.css, csstree.clone( this.ast ), this.errors );
 
 		clone.pruneMediaQueries();
-		clone.pruneAtRules();
+		clone.pruneAtRules( [ 'keyframes', 'charset', 'import' ] );
 		clone.pruneNonCriticalSelectors( criticalSelectors );
 		clone.pruneExcludedProperties();
 		clone.pruneLargeBase64Embeds();
@@ -256,16 +256,15 @@ export class StyleAST {
 	}
 
 	/**
-	 * Remove atrules which are incompatible with Critical CSS.
-	 * Targets keyframes (for animations), charsets and imports.
+	 * Remove unwanted at-rules.
+	 *
+	 * @param { string[] } names - Names of at-rules to remove, excluding the at symbol.
 	 */
-	pruneAtRules(): void {
-		const prune = [ 'keyframes', 'charset', 'import' ];
-
+	pruneAtRules( names: string[] ): void {
 		csstree.walk( this.ast, {
 			visit: 'Atrule',
 			enter: ( atrule, atitem, atlist ) => {
-				if ( prune.includes( csstree.keyword( atrule.name ).basename ) ) {
+				if ( names.includes( csstree.keyword( atrule.name ).basename ) ) {
 					atlist.remove( atitem );
 				}
 			},
