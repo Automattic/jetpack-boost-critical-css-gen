@@ -75,7 +75,7 @@ export class StyleAST {
 		const clone = new StyleAST( this.css, csstree.clone( this.ast ), this.errors );
 
 		clone.pruneMediaQueries();
-		clone.pruneKeyframes();
+		clone.pruneAtRules( [ 'keyframes', 'charset', 'import' ] );
 		clone.pruneNonCriticalSelectors( criticalSelectors );
 		clone.pruneExcludedProperties();
 		clone.pruneLargeBase64Embeds();
@@ -256,14 +256,15 @@ export class StyleAST {
 	}
 
 	/**
-	 * Remove keyframe definitions.
+	 * Remove unwanted at-rules.
+	 *
+	 * @param { string[] } names - Names of at-rules to remove, excluding the at symbol.
 	 */
-	pruneKeyframes(): void {
+	pruneAtRules( names: string[] ): void {
 		csstree.walk( this.ast, {
 			visit: 'Atrule',
 			enter: ( atrule, atitem, atlist ) => {
-				// Ignore non-keyframes.
-				if ( csstree.keyword( atrule.name ).basename === 'keyframes' ) {
+				if ( names.includes( csstree.keyword( atrule.name ).basename ) ) {
 					atlist.remove( atitem );
 				}
 			},
