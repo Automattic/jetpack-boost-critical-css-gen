@@ -1,5 +1,6 @@
 import { Viewport } from './types';
 import { BrowserInterface, BrowserRunnable, FetchOptions } from './browser-interface';
+import { HttpError } from './errors';
 import { BrowserContext, Page } from 'playwright-core';
 import { objectPromiseAll } from './object-promise-all';
 
@@ -84,7 +85,7 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 
 		// Bail early if the page returned a non-200 status code.
 		if ( ! tab.statusCode || ! this.isOkStatus( tab.statusCode ) ) {
-			const error = new Error( `Page returned status code ${ tab.statusCode }` );
+			const error = new HttpError( { url: pageUrl, code: tab.statusCode } );
 			this.trackUrlError( pageUrl, error );
 			throw error;
 		}
