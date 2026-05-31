@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: leonsteinhaeuser/project-beta-automations@v1.0.3
+      - uses: leonsteinhaeuser/project-beta-automations@c9c730ead28e65454e9ed7cfc62046c0a0fcfdfc # v1.0.3
         with:
           gh_token: ${{ secrets.PROJECT_MANAGEMENT_TOKEN }}
           organization: "automattic"
